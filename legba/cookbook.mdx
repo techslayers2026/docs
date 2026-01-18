@@ -1,0 +1,48 @@
+---
+title: Cookbook
+description: Practical patterns for using Legba instances in real systems.
+---
+
+# Cookbook
+
+## Use case 1: Automated testing environments
+
+Create an isolated instance per test run, execute tests against the `access_url`, then destroy the instance.
+
+```js
+const baseUrl = `${process.env.LEGBA_BASE_URL}/orgs/${process.env.LEGBA_ORG_UUID}/api`
+const token = process.env.LEGBA_API_TOKEN
+
+async function createInstance() {
+  const response = await fetch(`${baseUrl}/instances`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ image: "ubuntu-22.04", size: "small" }),
+  })
+  return response.json()
+}
+
+async function destroyInstance(instanceUuid) {
+  await fetch(`${baseUrl}/instances/${instanceUuid}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+```
+
+## Use case 2: On-demand secure browsing sessions
+
+Map an app user/session to an `instance_uuid`, return `access_url` to the client, then clean up when the session ends.
+
+## Use case 3: Instance pool management
+
+Pre-warm a pool of instances for lower latency, track which are in use, and replenish when the pool drops below a
+threshold.
+
+## Best practices
+
+- Always clean up instances (timeouts + periodic sweeps).
+- Store API keys securely (server-side only, rotate regularly).
+- Implement retries with backoff for transient errors.
+- Monitor usage and audit logs (`/legba/logs`).
+

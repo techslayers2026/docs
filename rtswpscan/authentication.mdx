@@ -1,0 +1,20 @@
+---
+title: Authentication
+description: Authenticate to RTSWPScan with an API key header.
+---
+
+# Authentication
+
+All RTSWPScan endpoints require an API key header.
+
+## Header
+
+- `API-Key: <your_api_key>`
+
+## Example
+
+```bash
+curl -X GET "https://rtswpscan.slayers.tech/report/YOUR_REPORT_ID" \
+  -H "API-Key: $RTSWPSCAN_API_KEY"
+```
+

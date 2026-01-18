@@ -1,0 +1,34 @@
+---
+title: Overview
+description: Legba developer docs for managing browser isolation images, instances, keys, and audit logs.
+---
+
+# Legba
+
+Legba’s developer API is used to manage isolated browser instances (create, list, destroy), retrieve available images,
+rotate API keys, and review audit logs.
+
+<Note>
+This section is based on the official Legba developer portal at `https://www.legba.app/developers/api`. If anything
+differs from your environment, defer to the upstream docs.
+</Note>
+
+<Cards>
+  <Card title="Quickstart" icon="rocket" href="/legba/quickstart">
+    Create and destroy your first instance.
+  </Card>
+  <Card title="Authentication" icon="key-round" href="/legba/authentication">
+    Bearer token auth and org scoping.
+  </Card>
+  <Card title="Instances" icon="monitor" href="/legba/instances">
+    Create/list/destroy isolated instances.
+  </Card>
+</Cards>
+
+## Key concepts
+
+- **Organization UUID (`org_uuid`)**: scopes requests to your org.
+- **Images**: templates (OS + browser) used to create instances.
+- **Instances**: running isolated environments; responses include an `access_url` for end-user access.
+- **Audit logs**: activity stream for API actions.
+

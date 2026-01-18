@@ -1,0 +1,48 @@
+---
+title: Instances
+description: List, create, and destroy isolated browser instances.
+---
+
+# Instances
+
+Instances are isolated environments created from images. Responses typically include:
+
+- `instance_uuid`
+- `status`
+- `image`
+- `size`
+- `created_at`
+- `access_url`
+
+## List instances
+
+```bash
+curl -X GET "$LEGBA_BASE_URL/orgs/$LEGBA_ORG_UUID/api/instances" \
+  -H "Authorization: Bearer $LEGBA_API_TOKEN" \
+  -H "Content-Type: application/json"
+```
+
+## Create instance
+
+```bash
+curl -X POST "$LEGBA_BASE_URL/orgs/$LEGBA_ORG_UUID/api/instances" \
+  -H "Authorization: Bearer $LEGBA_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "image": "ubuntu-20.04",
+    "size": "small"
+  }'
+```
+
+## Destroy instance
+
+```bash
+curl -X DELETE "$LEGBA_BASE_URL/orgs/$LEGBA_ORG_UUID/api/instances/$INSTANCE_UUID" \
+  -H "Authorization: Bearer $LEGBA_API_TOKEN"
+```
+
+## Operational tips
+
+- Always destroy instances you no longer need to avoid unnecessary resource usage.
+- Store a mapping between your app sessions and `instance_uuid` for cleanup.
+

@@ -1,0 +1,15 @@
+---
+title: Start scan (POST)
+description: Initiate a scan using multipart form data.
+openapi: "openapi/rtswpscan.json POST /scan"
+---
+
+# Start scan (POST)
+
+Initiates a scan. Requires `url` and accepts an optional `mode`.
+
+## Fields
+
+- `url` (required): target URL to scan
+- `mode` (optional): `normal` or `aggressive` (defaults to `normal` if omitted)
+

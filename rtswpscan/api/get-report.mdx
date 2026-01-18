@@ -1,0 +1,14 @@
+---
+title: Get report
+description: Retrieve a scan report by ID.
+openapi: "openapi/rtswpscan.json GET /report/{report_id}"
+---
+
+# Get report
+
+Retrieves the report for a previously initiated scan.
+
+## Pending reports
+
+If the report is not ready, the API may return `404` with a `pending` status. Retry with backoff.
+

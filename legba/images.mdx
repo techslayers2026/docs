@@ -1,0 +1,17 @@
+---
+title: Images
+description: List available OS + browser images you can use for instances.
+---
+
+# Images
+
+Images define the base OS and browser configuration used when creating an instance.
+
+## List available images
+
+```bash
+curl -X GET "$LEGBA_BASE_URL/orgs/$LEGBA_ORG_UUID/api/images" \
+  -H "Authorization: Bearer $LEGBA_API_TOKEN" \
+  -H "Content-Type: application/json"
+```
+

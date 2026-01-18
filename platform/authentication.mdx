@@ -1,0 +1,49 @@
+---
+title: Authentication
+description: How to authenticate across TechSlayers product APIs.
+---
+
+# Authentication
+
+TechSlayers products use either API keys (sent as headers) or bearer tokens (sent via the `Authorization` header).
+
+<Note>
+Never embed secrets in client-side code. Store them in your server environment (or a secret manager) and rotate them
+regularly.
+</Note>
+
+## Product auth matrix
+
+| Product | Type | How to send |
+| --- | --- | --- |
+| DarkRecon | API key | `X-API-Key: <key>` |
+| FileScanner | API key (optional) | `X-API-Key: <key>` and optionally `X-Device-Name: <device>` |
+| RTSWPScan | API key | `API-Key: <key>` |
+| Senthrex | Bearer token | `Authorization: Bearer <token>` |
+| Legba | Bearer token | `Authorization: Bearer <token>` |
+
+## Recommended client pattern
+
+1. Keep the secret server-side only.
+2. Add a thin wrapper per product that:
+   - injects auth headers
+   - sets a sensible timeout
+   - logs request IDs (if present)
+   - retries only when safe (see `/platform/rate-limits`)
+
+## Examples
+
+### DarkRecon (`X-API-Key`)
+
+```bash
+curl -X GET "https://darkrecon.1337807.xyz/view_breaches" \
+  -H "X-API-Key: $DARKRECON_API_KEY"
+```
+
+### Senthrex (`Authorization: Bearer`)
+
+```bash
+curl -X GET "https://rts-senthrex.slayers.tech/scans" \
+  -H "Authorization: Bearer $SENTHREX_TOKEN"
+```
+

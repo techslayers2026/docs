@@ -1,0 +1,40 @@
+---
+title: Overview
+description: DarkRecon Report Generation API for breach intelligence workflows.
+---
+
+# DarkRecon
+
+DarkRecon helps you generate breach intelligence reports from one or more email addresses, then download packaged
+results for review and distribution.
+
+<Cards>
+  <Card title="Quickstart" icon="rocket" href="/darkrecon/quickstart">
+    Generate your first report in minutes.
+  </Card>
+  <Card title="Authentication" icon="key-round" href="/darkrecon/authentication">
+    Use `X-API-Key` on every request.
+  </Card>
+  <Card title="API Reference" icon="braces" href="/darkrecon/api/process-emails">
+    Endpoint-by-endpoint reference with interactive requests.
+  </Card>
+</Cards>
+
+## Base URL
+
+`https://darkrecon.1337807.xyz`
+
+## Authentication
+
+DarkRecon uses an API key sent in the request header:
+
+- `X-API-Key: <your_api_key>`
+
+See `/darkrecon/authentication`.
+
+## Typical workflow
+
+1. Generate a report: `POST /recon`
+2. List reports: `GET /view_breaches`
+3. Download a report ZIP: `GET /download/{report_name}`
+

@@ -1,0 +1,27 @@
+---
+title: Authentication
+description: Authenticate to Legba with a bearer token and org-scoped routes.
+---
+
+# Authentication
+
+Legba uses bearer token authentication.
+
+## Header
+
+- `Authorization: Bearer <token>`
+
+## Org scoping
+
+Most endpoints are scoped under your organization:
+
+`/orgs/{org_uuid}/api/...`
+
+## Example
+
+```bash
+curl -X GET "$LEGBA_BASE_URL/orgs/$LEGBA_ORG_UUID/api/instances" \
+  -H "Authorization: Bearer $LEGBA_API_TOKEN" \
+  -H "Content-Type: application/json"
+```
+

@@ -1,0 +1,30 @@
+---
+title: Errors
+description: Error formats and common HTTP status codes in the Legba API.
+---
+
+# Errors
+
+The upstream docs describe a consistent error envelope:
+
+```json
+{
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Human-readable error description",
+    "details": {}
+  }
+}
+```
+
+## Common HTTP status codes
+
+| Status | Meaning |
+| --- | --- |
+| `400` | Bad request |
+| `401` | Unauthorized |
+| `403` | Forbidden |
+| `404` | Not found |
+| `429` | Too many requests |
+| `500` | Internal server error |
+

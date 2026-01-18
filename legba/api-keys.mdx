@@ -1,0 +1,27 @@
+---
+title: API keys
+description: Retrieve API key information and rotate keys.
+---
+
+# API keys
+
+Legba supports retrieving key metadata and rotating keys.
+
+<Warning>
+Rotating a key will invalidate the old key. Update any integrations immediately after rotation.
+</Warning>
+
+## Get API key information
+
+```bash
+curl -X GET "$LEGBA_BASE_URL/orgs/$LEGBA_ORG_UUID/api/key" \
+  -H "Authorization: Bearer $LEGBA_API_TOKEN"
+```
+
+## Rotate API key
+
+```bash
+curl -X POST "$LEGBA_BASE_URL/orgs/$LEGBA_ORG_UUID/api/key/rotate" \
+  -H "Authorization: Bearer $LEGBA_API_TOKEN"
+```
+

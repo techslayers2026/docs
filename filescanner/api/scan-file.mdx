@@ -1,0 +1,16 @@
+---
+title: Scan file
+description: Scan a file for malware and return detection results.
+openapi: "openapi/filescanner.json POST /api/scan"
+---
+
+# Scan file
+
+Uploads a file to be scanned. The request is `multipart/form-data`.
+
+## Form fields
+
+- `file` (required): the file to scan
+- `apikey` (optional): alternative to the `X-API-Key` header
+- `devicename` (optional): alternative to the `X-Device-Name` header
+

@@ -1,0 +1,71 @@
+---
+title: Quickstart
+description: Create an instance, list it, and destroy it using the Legba API.
+---
+
+# Quickstart
+
+This guide mirrors the Legba developer portal flow: list images → create instance → list instances → destroy instance.
+
+## Prerequisites
+
+- A Legba account
+- An API token
+- Your `org_uuid`
+
+<Note>
+The upstream docs use `https://api.example.com` as a placeholder. Replace it with your real Legba API base URL.
+</Note>
+
+## Environment variables (recommended)
+
+```bash
+export LEGBA_BASE_URL="https://api.example.com"
+export LEGBA_ORG_UUID="YOUR_ORG_UUID"
+export LEGBA_API_TOKEN="YOUR_API_TOKEN"
+```
+
+## Step 1: List available images
+
+```bash
+curl -X GET "$LEGBA_BASE_URL/orgs/$LEGBA_ORG_UUID/api/images" \
+  -H "Authorization: Bearer $LEGBA_API_TOKEN" \
+  -H "Content-Type: application/json"
+```
+
+## Step 2: Create an instance
+
+```bash
+curl -X POST "$LEGBA_BASE_URL/orgs/$LEGBA_ORG_UUID/api/instances" \
+  -H "Authorization: Bearer $LEGBA_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "image": "ubuntu-20.04",
+    "size": "small"
+  }'
+```
+
+Save the returned `instance_uuid` and `access_url`.
+
+## Step 3: List instances
+
+```bash
+curl -X GET "$LEGBA_BASE_URL/orgs/$LEGBA_ORG_UUID/api/instances" \
+  -H "Authorization: Bearer $LEGBA_API_TOKEN" \
+  -H "Content-Type: application/json"
+```
+
+## Step 4: Destroy an instance
+
+```bash
+curl -X DELETE "$LEGBA_BASE_URL/orgs/$LEGBA_ORG_UUID/api/instances/$INSTANCE_UUID" \
+  -H "Authorization: Bearer $LEGBA_API_TOKEN"
+```
+
+## Next steps
+
+- `/legba/instances`
+- `/legba/images`
+- `/legba/api-keys`
+- `/legba/logs`
+

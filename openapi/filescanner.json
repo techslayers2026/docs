@@ -1,0 +1,239 @@
+{
+  "info": {
+    "description": "API documentation for the RTS File Scanner service",
+    "title": "RTS File Scanner API",
+    "version": "1.0.0"
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/scan": {
+      "post": {
+        "description": "Uploads a file and scans it using multiple antivirus engines. Returns file hashes, detection results, and metadata.",
+        "operationId": "scanFile",
+        "parameters": [
+          {
+            "description": "User API key for authentication",
+            "in": "header",
+            "name": "X-API-Key",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Name of the device making the request",
+            "in": "header",
+            "name": "X-Device-Name",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "apikey": {
+                    "description": "User API key (alternative to X-API-Key header)",
+                    "type": "string"
+                  },
+                  "devicename": {
+                    "description": "Device name (alternative to X-Device-Name header)",
+                    "type": "string"
+                  },
+                  "file": {
+                    "description": "The file to scan",
+                    "format": "binary",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "file"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detections": [
+                    [
+                      "Avast",
+                      "Malware"
+                    ],
+                    [
+                      "Kaspersky",
+                      "Trojan"
+                    ]
+                  ],
+                  "file_hash": {
+                    "md5_hash": "5d41402abc4b2a76b9719d911017c592",
+                    "sha256_hash": "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae"
+                  },
+                  "has_detections": true,
+                  "metadata": {
+                    "FileSize": "1024 bytes",
+                    "FileType": "PDF"
+                  },
+                  "num_detections": 2
+                },
+                "schema": {
+                  "properties": {
+                    "detections": {
+                      "description": "List of detections found",
+                      "items": {
+                        "description": "Tuple of (antivirus_name, detection_name)",
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "type": "array"
+                    },
+                    "file_hash": {
+                      "properties": {
+                        "md5_hash": {
+                          "description": "MD5 hash of the file",
+                          "type": "string"
+                        },
+                        "sha256_hash": {
+                          "description": "SHA256 hash of the file",
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "has_detections": {
+                      "description": "Whether any detections were found",
+                      "type": "boolean"
+                    },
+                    "metadata": {
+                      "additionalProperties": true,
+                      "description": "File metadata extracted using exiftool and python-magic",
+                      "type": "object"
+                    },
+                    "num_detections": {
+                      "description": "Number of malware detections",
+                      "type": "integer"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Scan completed successfully"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "conflicting_api_key": {
+                    "value": {
+                      "error": "Two API values present. Only one API value is allowed."
+                    }
+                  },
+                  "conflicting_device": {
+                    "value": {
+                      "error": "Two Device values present. Only one Device value is allowed."
+                    }
+                  }
+                },
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Bad request - Invalid input or conflicting parameters"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "insufficient_credit": {
+                    "value": {
+                      "error": "Insufficient credit"
+                    }
+                  },
+                  "invalid_key": {
+                    "value": {
+                      "error": "Invalid API key"
+                    }
+                  },
+                  "missing_key": {
+                    "value": {
+                      "error": "API key missing"
+                    }
+                  }
+                },
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Unauthorized - Missing or invalid API key"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Credit has expired"
+                },
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Forbidden - Credit has expired"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Internal server error"
+          }
+        },
+        "summary": "Scan a file for malware",
+        "tags": [
+          "Scan"
+        ]
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://6465762e76312e7363616e.slayers.tech",
+      "description": "Production server"
+    }
+  ]
+}

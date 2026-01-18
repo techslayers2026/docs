@@ -1,0 +1,48 @@
+---
+title: Quickstart
+description: Start a scan and retrieve the resulting report.
+---
+
+# Quickstart
+
+This guide shows the standard RTSWPScan lifecycle: initiate a scan, then fetch the report.
+
+## 1) Set your API key
+
+```bash
+export RTSWPSCAN_API_KEY="YOUR_API_KEY"
+```
+
+## 2) Start a scan (recommended: POST)
+
+```bash
+curl -X POST "https://rtswpscan.slayers.tech/scan" \
+  -H "API-Key: $RTSWPSCAN_API_KEY" \
+  -F "url=https://example.com" \
+  -F "mode=normal"
+```
+
+The response includes a `scan_id` you’ll use to retrieve the report.
+
+## 3) Fetch the report
+
+```bash
+curl -X GET "https://rtswpscan.slayers.tech/report/YOUR_SCAN_ID" \
+  -H "API-Key: $RTSWPSCAN_API_KEY"
+```
+
+### Pending reports
+
+If the report is not ready, the API may respond with `404` and a JSON body like:
+
+```json
+{ "status": "pending" }
+```
+
+In that case, wait and retry with backoff.
+
+## Next steps
+
+- `/rtswpscan/api/start-scan-post`
+- `/rtswpscan/api/get-report`
+

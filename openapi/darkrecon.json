@@ -1,0 +1,272 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Dark Recon Report Generation API",
+    "description": "API for processing emails and generating security breach reports",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://darkrecon.1337807.xyz/",
+      "description": "Production server"
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "paths": {
+    "/recon": {
+      "post": {
+        "tags": [
+          "Recon"
+        ],
+        "summary": "Process emails and generate security breach report",
+        "description": "Sends emails to Telegram bot, downloads breach data, analyzes findings, and generates a comprehensive security report",
+        "operationId": "recon",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReconRequest"
+              },
+              "example": {
+                "emails": [
+                  "example@email.com",
+                  "another@email.com"
+                ],
+                "name": "John Doe"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Report generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReconResponse"
+                },
+                "example": {
+                  "status": "success",
+                  "output": "abc123_JohnDoe_xyz789",
+                  "total_breaches": 15
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/view_breaches": {
+      "get": {
+        "tags": [
+          "Breaches"
+        ],
+        "summary": "View available breach reports",
+        "description": "Returns a list of all available breach reports that have been generated",
+        "operationId": "viewBreaches",
+        "responses": {
+          "200": {
+            "description": "List of available reports",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BreachesResponse"
+                },
+                "example": {
+                  "reports": [
+                    {
+                      "report_name": "abc123_JohnDoe_xyz789",
+                      "created_at": "2024-01-15T10:30:00Z"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/download/{report_name}": {
+      "get": {
+        "tags": [
+          "Download"
+        ],
+        "summary": "Download report as ZIP file",
+        "description": "Downloads a complete report folder as a ZIP archive containing all HTML reports, images, fonts, and stylesheets",
+        "operationId": "downloadReport",
+        "parameters": [
+          {
+            "name": "report_name",
+            "in": "path",
+            "required": true,
+            "description": "Name of the report folder to download",
+            "schema": {
+              "type": "string"
+            },
+            "example": "abc123_JohnDoe_xyz789"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ZIP file download",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid API key or access forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Report folder not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "API key for authentication"
+      }
+    },
+    "schemas": {
+      "ReconRequest": {
+        "type": "object",
+        "required": [
+          "emails",
+          "name"
+        ],
+        "properties": {
+          "emails": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "email"
+            },
+            "description": "List of email addresses to check for breaches",
+            "minItems": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "Name associated with the report",
+            "example": "John Doe"
+          }
+        }
+      },
+      "ReconResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "success",
+              "no_results"
+            ],
+            "description": "Status of the operation"
+          },
+          "output": {
+            "type": "string",
+            "description": "Unique report folder name",
+            "example": "abc123_JohnDoe_xyz789"
+          },
+          "total_breaches": {
+            "type": "integer",
+            "description": "Total number of breaches found",
+            "minimum": 0
+          }
+        }
+      },
+      "BreachesResponse": {
+        "type": "object",
+        "properties": {
+          "reports": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReportInfo"
+            }
+          }
+        }
+      },
+      "ReportInfo": {
+        "type": "object",
+        "properties": {
+          "report_name": {
+            "type": "string",
+            "description": "Name of the report folder"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the report was created"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "detail": {
+            "type": "string",
+            "description": "Error message"
+          }
+        }
+      }
+    }
+  }
+}

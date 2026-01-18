@@ -1,0 +1,25 @@
+---
+title: Authentication
+description: Optional API key and device headers for FileScanner.
+---
+
+# Authentication
+
+FileScanner supports optional authentication headers.
+
+## Headers
+
+- `X-API-Key: <api_key>` (optional)
+- `X-Device-Name: <device_name>` (optional)
+
+Some clients may also pass these as multipart fields (`apikey`, `devicename`) instead of headers.
+
+## Example
+
+```bash
+curl -X POST "https://6465762e76312e7363616e.slayers.tech/api/scan" \
+  -H "X-API-Key: $FILESCANNER_API_KEY" \
+  -H "X-Device-Name: $FILESCANNER_DEVICE_NAME" \
+  -F "file=@/path/to/file"
+```
+

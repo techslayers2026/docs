@@ -1,0 +1,56 @@
+---
+title: TechSlayers Docs
+description: API references and integration guides for TechSlayers products.
+---
+
+# TechSlayers Docs
+
+Central documentation for TechSlayers products: quickstarts, authentication patterns, and API references.
+
+<Cards>
+  <Card title="DarkRecon" icon="radar" href="/darkrecon/overview">
+    Breach report generation workflows: submit emails, review findings, download reports.
+  </Card>
+  <Card title="FileScanner" icon="file-search" href="/filescanner/overview">
+    Malware scanning API for files with detection results, metadata, and hashes.
+  </Card>
+  <Card title="RTSWPScan" icon="scan-search" href="/rtswpscan/overview">
+    WordPress scanning service: start a scan, then pull reports by ID.
+  </Card>
+  <Card title="Senthrex" icon="siren" href="/senthrex/overview">
+    Simulation scanning API: start scans, track status, and retrieve reports/logs.
+  </Card>
+  <Card title="Legba" icon="shield" href="/legba/overview">
+    Developer portal and API reference for browser isolation instances, images, keys, and logs.
+  </Card>
+</Cards>
+
+## Authentication at a glance
+
+| Product | Base URL | Auth |
+| --- | --- | --- |
+| DarkRecon | `https://darkrecon.1337807.xyz` | API key header `X-API-Key` |
+| FileScanner | `https://6465762e76312e7363616e.slayers.tech` | Optional headers `X-API-Key`, `X-Device-Name` |
+| RTSWPScan | `https://rtswpscan.slayers.tech` | API key header `API-Key` |
+| Senthrex | `https://rts-senthrex.slayers.tech` | Bearer token header `Authorization: Bearer …` |
+| Legba | Provided in the Legba portal | Bearer token header `Authorization: Bearer …` |
+
+## Platform docs
+
+<Cards>
+  <Card title="Authentication" icon="key-round" href="/platform/authentication">
+    Where to put your keys/tokens and how auth differs across products.
+  </Card>
+  <Card title="Errors" icon="triangle-alert" href="/platform/errors">
+    How to debug 4xx/5xx, interpret common responses, and implement retries safely.
+  </Card>
+  <Card title="Rate limits" icon="gauge" href="/platform/rate-limits">
+    Backoff strategies and client patterns that keep your integrations reliable.
+  </Card>
+</Cards>
+
+## Need help?
+
+- Support: `support@techslayers.com`
+- Security: `security@techslayers.com`
+

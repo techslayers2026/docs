@@ -1,0 +1,59 @@
+---
+title: Quickstart
+description: Generate a breach report and download the ZIP output.
+---
+
+# Quickstart
+
+This guide walks through generating a DarkRecon report from email addresses, then downloading the report output.
+
+## 1) Set your API key
+
+```bash
+export DARKRECON_API_KEY="YOUR_API_KEY"
+```
+
+## 2) Generate a report
+
+Call `POST /recon` with a name and one or more email addresses:
+
+```bash
+curl -X POST "https://darkrecon.1337807.xyz/recon" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: $DARKRECON_API_KEY" \
+  -d '{
+    "name": "John Doe",
+    "emails": ["john@example.com"]
+  }'
+```
+
+The response includes:
+
+- `status`: `success` or `no_results`
+- `output`: a report folder name you’ll use for downloads
+- `total_breaches`: count of breaches found
+
+## 3) List available reports
+
+```bash
+curl -X GET "https://darkrecon.1337807.xyz/view_breaches" \
+  -H "X-API-Key: $DARKRECON_API_KEY"
+```
+
+## 4) Download the ZIP
+
+Use the `report_name` you received as `output` (or from `/view_breaches`):
+
+```bash
+curl -L "https://darkrecon.1337807.xyz/download/YOUR_REPORT_NAME" \
+  -H "X-API-Key: $DARKRECON_API_KEY" \
+  -o darkrecon-report.zip
+```
+
+## Next steps
+
+- `/darkrecon/api/process-emails`
+- `/darkrecon/api/view-breaches`
+- `/darkrecon/api/download-report`
+- `/darkrecon/schemas/recon-request`
+

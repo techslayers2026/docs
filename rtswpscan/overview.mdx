@@ -1,0 +1,31 @@
+---
+title: Overview
+description: RTSWPScan API for initiating WordPress scans and retrieving reports.
+---
+
+# RTSWPScan
+
+RTSWPScan exposes a simple scan workflow: start a scan against a target URL, then retrieve the report by ID.
+
+<Cards>
+  <Card title="Quickstart" icon="rocket" href="/rtswpscan/quickstart">
+    Start a scan and poll for the report.
+  </Card>
+  <Card title="Authentication" icon="key-round" href="/rtswpscan/authentication">
+    Use the `API-Key` header.
+  </Card>
+  <Card title="API Reference" icon="braces" href="/rtswpscan/api/start-scan-post">
+    Reference for starting scans and fetching reports.
+  </Card>
+</Cards>
+
+## Base URL
+
+`https://rtswpscan.slayers.tech`
+
+## Typical workflow
+
+1. Start a scan (`POST /scan` or `GET /scan`)
+2. Use the returned `scan_id` as `report_id`
+3. Fetch the report (`GET /report/{report_id}`), retrying until ready
+

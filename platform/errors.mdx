@@ -1,0 +1,38 @@
+---
+title: Errors
+description: Debugging and handling errors consistently across TechSlayers APIs.
+---
+
+# Errors
+
+TechSlayers APIs return standard HTTP status codes. Your integration should treat status codes (and not just response
+bodies) as the source of truth for success/failure.
+
+## Common status codes
+
+| Status | Meaning | What to do |
+| --- | --- | --- |
+| `400` | Bad request | Validate inputs; log the response for field-level hints. |
+| `401` | Unauthorized | Check key/token formatting and that you’re using the right header name. |
+| `403` | Forbidden | Key is valid but lacks permission, or is invalid/disabled in some services. |
+| `404` | Not found / pending | Some “report not ready yet” flows may use `404` as a pending signal (see RTSWPScan). |
+| `422` | Validation error | Input shape is wrong (commonly used by FastAPI-based services). |
+| `500` | Server error | Retry with backoff; escalate to support if persistent. |
+
+## Practical debugging checklist
+
+1. Confirm you are calling the correct base URL for the product.
+2. Confirm auth:
+   - correct header name (`X-API-Key` vs `API-Key` vs `Authorization: Bearer …`)
+   - secret is not empty / not expired
+3. Log:
+   - request URL + method
+   - response status code
+   - response body (redact secrets)
+4. Add timeouts and handle retries safely (see `/platform/rate-limits`).
+
+<Note>
+If you need help debugging an unexpected response, email `support@techslayers.com` with the request/response details
+(redacting any secrets).
+</Note>
+

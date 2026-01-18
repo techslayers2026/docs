@@ -1,0 +1,23 @@
+---
+title: Rate limits
+description: Safe retry patterns and backoff strategies for reliable integrations.
+---
+
+# Rate limits
+
+Rate limits can vary by product and deployment. Build clients that are resilient even when limits are not explicitly
+documented.
+
+## Best practices
+
+- Prefer exponential backoff with jitter for retries.
+- Retry only when safe:
+  - ✅ `GET` requests are usually safe
+  - ⚠️ `POST` may not be safe unless the endpoint is idempotent (or you use a request ID)
+- Treat `429` and `503` as retryable by default, using backoff.
+- Put a cap on retries and fail fast for clearly invalid requests (`400`, `401`).
+
+## Example backoff schedule
+
+Try `1s → 2s → 4s → 8s` (plus small random jitter), then stop and surface an error.
+

@@ -1,0 +1,191 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "TechSlayers Docs",
+  "description": "API references and integration guides for TechSlayers products.",
+  "theme": "mint",
+  "colors": {
+    "primary": "#176dd6",
+    "light": "#208bff",
+    "dark": "#176dd6"
+  },
+  "logo": {
+    "light": "/assets/techslayers-logo.png",
+    "dark": "/assets/techslayers-logo.png",
+    "href": "https://www.techslayers.com"
+  },
+  "favicon": "/assets/techslayers-icon.png",
+  "background": {
+    "decoration": "gradient",
+    "color": {
+      "dark": "#0A0F1F",
+      "light": "#FFFFFF"
+    }
+  },
+  "appearance": {
+    "default": "dark"
+  },
+  "fonts": {
+    "heading": {
+      "family": "Inter"
+    },
+    "body": {
+      "family": "Inter"
+    }
+  },
+  "icons": {
+    "library": "lucide"
+  },
+  "search": {
+    "prompt": "Search TechSlayers docs…"
+  },
+  "navbar": {
+    "links": [
+      { "label": "Home", "href": "https://www.techslayers.com" },
+      { "label": "Products", "href": "https://www.techslayers.com/products" },
+      { "label": "Services", "href": "https://www.techslayers.com/services" }
+    ],
+    "primary": { "type": "button", "label": "Contact", "href": "https://www.techslayers.com/#contact" }
+  },
+  "footer": {
+    "socials": {
+      "website": "https://www.techslayers.com",
+      "linkedin": "https://www.linkedin.com/company/techslayers/",
+      "x": "https://twitter.com/techslayers"
+    },
+    "links": [
+      {
+        "header": "Products",
+        "items": [
+          { "label": "DarkRecon", "href": "https://www.techslayers.com/products/dark-recon" },
+          { "label": "Senthrex", "href": "https://www.techslayers.com/products/senthrex" },
+          { "label": "Red Team Suite", "href": "https://www.techslayers.com/products/red-team-suite" },
+          { "label": "Legba", "href": "https://www.techslayers.com/products/legba" }
+        ]
+      },
+      {
+        "header": "Company",
+        "items": [
+          { "label": "About", "href": "https://www.techslayers.com/about" },
+          { "label": "Careers", "href": "https://www.techslayers.com/careers" },
+          { "label": "Blog", "href": "https://www.techslayers.com/blog" }
+        ]
+      },
+      {
+        "header": "Support",
+        "items": [
+          { "label": "Email", "href": "mailto:support@techslayers.com" },
+          { "label": "Security", "href": "mailto:security@techslayers.com" }
+        ]
+      }
+    ]
+  },
+  "api": {
+    "playground": { "display": "interactive", "proxy": true },
+    "examples": {
+      "languages": ["curl", "python", "javascript"],
+      "defaults": "required",
+      "prefill": true
+    }
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Start Here",
+        "pages": [
+          "index",
+          {
+            "group": "Platform",
+            "pages": ["platform/authentication", "platform/errors", "platform/rate-limits"]
+          }
+        ]
+      },
+      {
+        "group": "DarkRecon",
+        "icon": "radar",
+        "pages": [
+          "darkrecon/overview",
+          "darkrecon/quickstart",
+          "darkrecon/authentication",
+          {
+            "group": "API Reference",
+            "pages": [
+              "darkrecon/api/process-emails",
+              "darkrecon/api/view-breaches",
+              "darkrecon/api/download-report"
+            ]
+          },
+          {
+            "group": "Schemas",
+            "pages": [
+              "darkrecon/schemas/recon-request",
+              "darkrecon/schemas/recon-response",
+              "darkrecon/schemas/breaches-response",
+              "darkrecon/schemas/report-info"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "FileScanner",
+        "icon": "file-search",
+        "pages": [
+          "filescanner/overview",
+          "filescanner/quickstart",
+          "filescanner/authentication",
+          { "group": "API Reference", "pages": ["filescanner/api/scan-file"] }
+        ]
+      },
+      {
+        "group": "RTSWPScan",
+        "icon": "scan-search",
+        "pages": [
+          "rtswpscan/overview",
+          "rtswpscan/quickstart",
+          "rtswpscan/authentication",
+          {
+            "group": "API Reference",
+            "pages": ["rtswpscan/api/start-scan-post", "rtswpscan/api/start-scan-get", "rtswpscan/api/get-report"]
+          }
+        ]
+      },
+      {
+        "group": "Senthrex",
+        "icon": "siren",
+        "pages": [
+          "senthrex/overview",
+          "senthrex/quickstart",
+          "senthrex/authentication",
+          {
+            "group": "API Reference",
+            "pages": [
+              "senthrex/api/start-scan-post",
+              "senthrex/api/start-scan-get",
+              "senthrex/api/get-status",
+              "senthrex/api/download-report",
+              "senthrex/api/list-scans",
+              "senthrex/api/delete-scan",
+              "senthrex/api/get-stats",
+              "senthrex/api/get-logs",
+              "senthrex/api/debug-scan"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "Legba",
+        "icon": "shield",
+        "pages": [
+          "legba/overview",
+          "legba/quickstart",
+          "legba/authentication",
+          "legba/api-keys",
+          "legba/instances",
+          "legba/images",
+          "legba/logs",
+          "legba/errors",
+          "legba/cookbook"
+        ]
+      }
+    ]
+  }
+}

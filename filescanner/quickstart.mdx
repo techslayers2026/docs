@@ -1,0 +1,41 @@
+---
+title: Quickstart
+description: Scan a file and read detections, metadata, and hashes.
+---
+
+# Quickstart
+
+This guide shows how to upload a file to FileScanner and interpret the response.
+
+## 1) Prepare your request
+
+The API expects `multipart/form-data` with a `file` field.
+
+If your deployment requires authentication, include:
+
+- `X-API-Key: <api_key>`
+- `X-Device-Name: <device_name>`
+
+## 2) Upload and scan
+
+```bash
+curl -X POST "https://6465762e76312e7363616e.slayers.tech/api/scan" \
+  -H "X-API-Key: $FILESCANNER_API_KEY" \
+  -H "X-Device-Name: $FILESCANNER_DEVICE_NAME" \
+  -F "file=@/path/to/file"
+```
+
+## 3) Interpret the response
+
+The response includes:
+
+- `has_detections` and `num_detections`
+- `detections`: list of `(engine, detection)` tuples
+- `file_hash`: `md5_hash` and `sha256_hash`
+- `metadata`: extracted details about the file
+
+## Next steps
+
+- `/filescanner/api/scan-file`
+- `/filescanner/authentication`
+

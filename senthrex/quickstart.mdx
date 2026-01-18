@@ -1,0 +1,62 @@
+---
+title: Quickstart
+description: Start a Senthrex scan, poll for status, and retrieve outputs.
+---
+
+# Quickstart
+
+This guide shows the standard Senthrex workflow using the bearer token and the scan UUID returned from `/scan`.
+
+## 1) Set your bearer token
+
+```bash
+export SENTHREX_TOKEN="YOUR_BEARER_TOKEN"
+```
+
+## 2) Start a scan (recommended: POST)
+
+```bash
+curl -X POST "https://rts-senthrex.slayers.tech/scan" \
+  -H "Authorization: Bearer $SENTHREX_TOKEN" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  --data-urlencode "domain=example.com"
+```
+
+The response includes a `uuid` (scan UUID). Use it as `scan_uuid` in all follow-up requests.
+
+## 3) Check scan status
+
+```bash
+curl -X GET "https://rts-senthrex.slayers.tech/status/YOUR_SCAN_UUID" \
+  -H "Authorization: Bearer $SENTHREX_TOKEN"
+```
+
+## 4) Retrieve outputs
+
+### Report
+
+```bash
+curl -X GET "https://rts-senthrex.slayers.tech/report/YOUR_SCAN_UUID" \
+  -H "Authorization: Bearer $SENTHREX_TOKEN"
+```
+
+### Logs
+
+```bash
+curl -X GET "https://rts-senthrex.slayers.tech/logs/YOUR_SCAN_UUID" \
+  -H "Authorization: Bearer $SENTHREX_TOKEN"
+```
+
+### Debug output
+
+```bash
+curl -X GET "https://rts-senthrex.slayers.tech/debug/YOUR_SCAN_UUID" \
+  -H "Authorization: Bearer $SENTHREX_TOKEN"
+```
+
+## Next steps
+
+- `/senthrex/api/start-scan-post`
+- `/senthrex/api/get-status`
+- `/senthrex/api/list-scans`
+

@@ -1,0 +1,25 @@
+---
+title: Audit logs
+description: Retrieve audit logs for API activity and operational visibility.
+---
+
+# Audit logs
+
+Audit logs help you understand who/what performed actions (e.g., instance creation/destruction), when it happened, and
+which resources were affected.
+
+## Get audit logs
+
+```bash
+curl -X GET "$LEGBA_BASE_URL/orgs/$LEGBA_ORG_UUID/api/logs" \
+  -H "Authorization: Bearer $LEGBA_API_TOKEN"
+```
+
+## Typical log fields
+
+- `timestamp`
+- `action` (e.g., `instance.created`, `instance.destroyed`)
+- `actor` (e.g., API key identity)
+- `resource` (instance id)
+- `details` (image, size)
+

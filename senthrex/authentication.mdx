@@ -1,0 +1,20 @@
+---
+title: Authentication
+description: Authenticate to Senthrex with a bearer token.
+---
+
+# Authentication
+
+Most Senthrex endpoints require a bearer token.
+
+## Header
+
+- `Authorization: Bearer <token>`
+
+## Example
+
+```bash
+curl -X GET "https://rts-senthrex.slayers.tech/scans" \
+  -H "Authorization: Bearer $SENTHREX_TOKEN"
+```
+

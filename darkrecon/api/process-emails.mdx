@@ -1,0 +1,19 @@
+---
+title: Process emails
+description: Submit emails to generate a DarkRecon breach report.
+openapi: "openapi/darkrecon.json POST /recon"
+---
+
+# Process emails
+
+Use this endpoint to generate a breach report for one or more email addresses.
+
+## Request body
+
+- `name` (string): label associated with the report
+- `emails` (array of emails): at least one email address to check
+
+## Notes
+
+- The response `output` field is the report folder name used by `/download/{report_name}`.
+
