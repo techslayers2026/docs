@@ -11,7 +11,7 @@
   "logo": {
     "light": "/assets/techslayers-logo.png",
     "dark": "/assets/techslayers-logo.png",
-    "href": "https://www.techslayers.com"
+    "href": "https://www.techslayers.ca"
   },
   "favicon": "/assets/techslayers-icon.png",
   "background": {
@@ -40,15 +40,15 @@
   },
   "navbar": {
     "links": [
-      { "label": "Home", "href": "https://www.techslayers.com" },
-      { "label": "Products", "href": "https://www.techslayers.com/products" },
-      { "label": "Services", "href": "https://www.techslayers.com/services" }
+      { "label": "Home", "href": "https://www.techslayers.ca" },
+      { "label": "Products", "href": "https://www.techslayers.ca/products" },
+      { "label": "Services", "href": "https://www.techslayers.ca/services" }
     ],
-    "primary": { "type": "button", "label": "Contact", "href": "https://www.techslayers.com/#contact" }
+    "primary": { "type": "button", "label": "Contact", "href": "https://www.techslayers.ca/#contact" }
   },
   "footer": {
     "socials": {
-      "website": "https://www.techslayers.com",
+      "website": "https://www.techslayers.ca",
       "linkedin": "https://www.linkedin.com/company/techslayers/",
       "x": "https://twitter.com/techslayers"
     },
@@ -56,25 +56,25 @@
       {
         "header": "Products",
         "items": [
-          { "label": "DarkRecon", "href": "https://www.techslayers.com/products/dark-recon" },
-          { "label": "Senthrex", "href": "https://www.techslayers.com/products/senthrex" },
-          { "label": "Red Team Suite", "href": "https://www.techslayers.com/products/red-team-suite" },
-          { "label": "Legba", "href": "https://www.techslayers.com/products/legba" }
+          { "label": "DarkRecon", "href": "https://www.techslayers.ca/products/dark-recon" },
+          { "label": "Senthrex", "href": "https://www.techslayers.ca/products/senthrex" },
+          { "label": "Red Team Suite", "href": "https://www.techslayers.ca/products/red-team-suite" },
+          { "label": "Legba", "href": "https://www.techslayers.ca/products/legba" }
         ]
       },
       {
         "header": "Company",
         "items": [
-          { "label": "About", "href": "https://www.techslayers.com/about" },
-          { "label": "Careers", "href": "https://www.techslayers.com/careers" },
-          { "label": "Blog", "href": "https://www.techslayers.com/blog" }
+          { "label": "About", "href": "https://www.techslayers.ca/about" },
+          { "label": "Careers", "href": "https://www.techslayers.ca/careers" },
+          { "label": "Blog", "href": "https://www.techslayers.ca/blog" }
         ]
       },
       {
         "header": "Support",
         "items": [
-          { "label": "Email", "href": "mailto:support@techslayers.com" },
-          { "label": "Security", "href": "mailto:security@techslayers.com" }
+          { "label": "Email", "href": "mailto:support@techslayers.ca" },
+          { "label": "Security", "href": "mailto:security@techslayers.ca" }
         ]
       }
     ]
