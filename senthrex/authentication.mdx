@@ -5,7 +5,7 @@ description: Authenticate to Senthrex with a bearer token.
 
 # Authentication
 
-Most Senthrex endpoints require a bearer token.
+Senthrex uses bearer-token authentication for scan operations.
 
 ## Header
 
@@ -18,3 +18,4 @@ curl -X GET "https://rts-senthrex.slayers.tech/scans" \
   -H "Authorization: Bearer $SENTHREX_TOKEN"
 ```
 
+The root endpoint (`GET /`) is a health/info endpoint and does not require authentication.

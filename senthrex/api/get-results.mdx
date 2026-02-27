@@ -1,0 +1,13 @@
+---
+title: Get scan results
+description: Retrieve structured JSON results for a scan UUID.
+openapi: "openapi/senthrex.json GET /results/{scan_uuid}"
+---
+
+# Get scan results
+
+Returns consolidated JSON findings for a scan, with optional filtering by scanner/tool type.
+
+## Query parameters
+
+- `tool` (optional): filter returned findings by scanner category

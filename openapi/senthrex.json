@@ -3,14 +3,14 @@
   "info": {
     "title": "Senthrex Simulation API",
     "description": "API for running comprehensive security assessments including subdomain enumeration, port scanning, vulnerability scanning, OSINT reconnaissance, and security exposure detection",
-    "version": "1.2.0"
+    "version": "2.0.0"
   },
   "paths": {
     "/scan": {
       "post": {
-        "summary": "Start Scan",
-        "description": "Start a new security scan for the specified domain",
-        "operationId": "start_scan_scan_post",
+        "summary": "Start Scan Post",
+        "description": "Start a new security scan for the specified domain.",
+        "operationId": "start_scan_post_scan_post",
         "security": [
           {
             "HTTPBearer": []
@@ -21,7 +21,7 @@
           "content": {
             "application/x-www-form-urlencoded": {
               "schema": {
-                "$ref": "#/components/schemas/Body_start_scan_scan_post"
+                "$ref": "#/components/schemas/Body_start_scan_post_scan_post"
               }
             }
           }
@@ -51,7 +51,7 @@
       },
       "get": {
         "summary": "Start Scan Get",
-        "description": "Start a new security scan for the specified domain (GET method)",
+        "description": "Start a new security scan for the specified domain (GET method).",
         "operationId": "start_scan_get_scan_get",
         "security": [
           {
@@ -69,6 +69,18 @@
               "title": "Domain"
             },
             "description": "Domain to scan"
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Scan mode: 'full' or 'discovery'",
+              "default": "full",
+              "title": "Mode"
+            },
+            "description": "Scan mode: 'full' or 'discovery'"
           }
         ],
         "responses": {
@@ -98,7 +110,7 @@
     "/status/{scan_uuid}": {
       "get": {
         "summary": "Get Scan Status",
-        "description": "Get the status of a scan by UUID",
+        "description": "Get the status of a scan by UUID.",
         "operationId": "get_scan_status_status__scan_uuid__get",
         "security": [
           {
@@ -140,10 +152,116 @@
         }
       }
     },
+    "/results/{scan_uuid}": {
+      "get": {
+        "summary": "Get Scan Results",
+        "description": "Get scan results as JSON.\n\nReturns the full scan findings in structured JSON format. For completed\nscans this reads the mega.json file. For in-progress scans it reads\nwhatever tyr output files have been produced so far.\n\nUse the optional ``tool`` query parameter to filter results by scanner\ntype (e.g. ``vulnerability_scanner``, ``port_scanner``,\n``reconnaissance_scanner``, ``ssl_scanner``, ``subdomain_scanner``,\n``wordpress_scanner``).",
+        "operationId": "get_scan_results_results__scan_uuid__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "scan_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Scan Uuid"
+            }
+          },
+          {
+            "name": "tool",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter results by tool type (e.g. 'vulnerability_scanner', 'port_scanner', 'reconnaissance_scanner')",
+              "title": "Tool"
+            },
+            "description": "Filter results by tool type (e.g. 'vulnerability_scanner', 'port_scanner', 'reconnaissance_scanner')"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScanResultsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/json/{scan_uuid}": {
+      "get": {
+        "summary": "Get Scan Json",
+        "description": "Return the raw mega.json output for a scan.\n\nServes the full consolidated scan results exactly as they are stored\non disk (the ``{domain}_mega.json`` file).",
+        "operationId": "get_scan_json_json__scan_uuid__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "scan_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Scan Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/report/{scan_uuid}": {
       "get": {
         "summary": "Download Report",
-        "description": "Download the scan report as a zip file",
+        "description": "Download the scan report as a zip file.",
         "operationId": "download_report_report__scan_uuid__get",
         "security": [
           {
@@ -186,7 +304,7 @@
     "/scans": {
       "get": {
         "summary": "List Scans",
-        "description": "List all scans with optional filtering",
+        "description": "List scans with optional filtering. API keys only see their own scans.",
         "operationId": "list_scans_scans_get",
         "security": [
           {
@@ -219,10 +337,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Filter by status: pending, running, completed, error",
+              "description": "Filter by status",
               "title": "Status Filter"
             },
-            "description": "Filter by status: pending, running, completed, error"
+            "description": "Filter by status"
           }
         ],
         "responses": {
@@ -249,11 +367,11 @@
         }
       }
     },
-    "/scan/{scan_uuid}": {
-      "delete": {
-        "summary": "Delete Scan",
-        "description": "Delete a scan and its associated files",
-        "operationId": "delete_scan_scan__scan_uuid__delete",
+    "/scan/{scan_uuid}/stop": {
+      "post": {
+        "summary": "Stop Scan",
+        "description": "Stop a running or pending scan.",
+        "operationId": "stop_scan_scan__scan_uuid__stop_post",
         "security": [
           {
             "HTTPBearer": []
@@ -275,7 +393,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
               }
             }
           },
@@ -295,14 +415,16 @@
     "/stats": {
       "get": {
         "summary": "Get Stats",
-        "description": "Get API statistics",
+        "description": "Get API statistics. API keys only see stats for their own scans.",
         "operationId": "get_stats_stats_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/StatsResponse"
+                }
               }
             }
           }
@@ -317,14 +439,16 @@
     "/": {
       "get": {
         "summary": "Root",
-        "description": "Health check endpoint",
+        "description": "Health check endpoint.",
         "operationId": "root__get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/RootResponse"
+                }
               }
             }
           }
@@ -334,7 +458,7 @@
     "/logs/{scan_uuid}": {
       "get": {
         "summary": "Get Scan Logs",
-        "description": "Get the detailed execution logs for a scan",
+        "description": "Get the detailed execution logs for a scan.",
         "operationId": "get_scan_logs_logs__scan_uuid__get",
         "security": [
           {
@@ -357,50 +481,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/LogsResponse"
                 }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/debug/{scan_uuid}": {
-      "get": {
-        "summary": "Debug Scan",
-        "description": "Get detailed debug information for a scan",
-        "operationId": "debug_scan_debug__scan_uuid__get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "scan_uuid",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Scan Uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
               }
             }
           },
@@ -420,18 +503,47 @@
   },
   "components": {
     "schemas": {
-      "Body_start_scan_scan_post": {
+      "Body_start_scan_post_scan_post": {
         "properties": {
           "domain": {
             "type": "string",
             "title": "Domain"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode",
+            "default": "full"
           }
         },
         "type": "object",
         "required": [
           "domain"
         ],
-        "title": "Body_start_scan_scan_post"
+        "title": "Body_start_scan_post_scan_post"
+      },
+      "DiskUsage": {
+        "properties": {
+          "total_size_bytes": {
+            "type": "integer",
+            "title": "Total Size Bytes"
+          },
+          "total_size_mb": {
+            "type": "number",
+            "title": "Total Size Mb"
+          },
+          "scan_directories": {
+            "type": "integer",
+            "title": "Scan Directories"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_size_bytes",
+          "total_size_mb",
+          "scan_directories"
+        ],
+        "title": "DiskUsage",
+        "description": "Disk usage breakdown for scan storage.\n\nAttributes:\n    total_size_bytes: Total size in bytes.\n    total_size_mb: Total size in megabytes.\n    scan_directories: Number of scan directories on disk."
       },
       "HTTPValidationError": {
         "properties": {
@@ -445,6 +557,90 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "LogsResponse": {
+        "properties": {
+          "scan_uuid": {
+            "type": "string",
+            "title": "Scan Uuid"
+          },
+          "log_file_path": {
+            "type": "string",
+            "title": "Log File Path"
+          },
+          "log_content": {
+            "type": "string",
+            "title": "Log Content"
+          },
+          "log_size_bytes": {
+            "type": "integer",
+            "title": "Log Size Bytes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "scan_uuid",
+          "log_file_path",
+          "log_content",
+          "log_size_bytes"
+        ],
+        "title": "LogsResponse",
+        "description": "Response containing scan execution logs.\n\nAttributes:\n    scan_uuid: Scan identifier.\n    log_file_path: Filesystem path to the log file.\n    log_content: Full text of the execution log.\n    log_size_bytes: Size of the log content in bytes."
+      },
+      "MessageResponse": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "MessageResponse",
+        "description": "Generic single-message response.\n\nAttributes:\n    message: Human-readable result message."
+      },
+      "RootResponse": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "features": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Features"
+          },
+          "endpoints": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Endpoints"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message",
+          "version",
+          "features"
+        ],
+        "title": "RootResponse",
+        "description": "Health check / info response from the root endpoint.\n\nAttributes:\n    message: Status message.\n    version: API version string.\n    features: List of supported features.\n    endpoints: Map of endpoint names to descriptions."
       },
       "ScanListResponse": {
         "properties": {
@@ -471,7 +667,8 @@
           "total_scans",
           "active_scans"
         ],
-        "title": "ScanListResponse"
+        "title": "ScanListResponse",
+        "description": "Response for the scan listing endpoint.\n\nAttributes:\n    scans: List of scan summary dictionaries.\n    total_scans: Total number of scans tracked by the API.\n    active_scans: Number of scans currently running or pending."
       },
       "ScanResponse": {
         "properties": {
@@ -494,7 +691,129 @@
           "status",
           "message"
         ],
-        "title": "ScanResponse"
+        "title": "ScanResponse",
+        "description": "Response returned when a scan is started.\n\nAttributes:\n    uuid: Unique identifier assigned to the scan.\n    status: Current status of the scan (e.g. ``\"pending\"``).\n    message: Human-readable message about the scan initiation."
+      },
+      "ScanResultsResponse": {
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "title": "Uuid"
+          },
+          "domain": {
+            "type": "string",
+            "title": "Domain"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode"
+          },
+          "start_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Time"
+          },
+          "end_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Time"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "results": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Results",
+            "default": []
+          },
+          "summary": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Summary",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "required": [
+          "uuid",
+          "domain",
+          "status"
+        ],
+        "title": "ScanResultsResponse",
+        "description": "Full JSON results for a completed or in-progress scan.\n\nAttributes:\n    uuid: Scan identifier.\n    domain: Target domain.\n    status: Current scan status.\n    mode: Scan mode (``\"full\"`` or ``\"discovery\"``).\n    start_time: Scan start timestamp.\n    end_time: Scan end timestamp (if finished).\n    url: Resolved URL for the target domain.\n    results: List of individual scanner result objects.\n    summary: High-level counts and metadata."
+      },
+      "StatsResponse": {
+        "properties": {
+          "total_scans": {
+            "type": "integer",
+            "title": "Total Scans"
+          },
+          "active_scans": {
+            "type": "integer",
+            "title": "Active Scans"
+          },
+          "max_concurrent_scans": {
+            "type": "integer",
+            "title": "Max Concurrent Scans"
+          },
+          "status_breakdown": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Status Breakdown"
+          },
+          "disk_usage": {
+            "$ref": "#/components/schemas/DiskUsage"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_scans",
+          "active_scans",
+          "max_concurrent_scans",
+          "status_breakdown",
+          "disk_usage"
+        ],
+        "title": "StatsResponse",
+        "description": "API statistics response.\n\nAttributes:\n    total_scans: Total number of scans tracked.\n    active_scans: Number of pending or running scans.\n    max_concurrent_scans: Configured concurrency limit.\n    status_breakdown: Counts keyed by scan status.\n    disk_usage: Storage consumption summary."
       },
       "StatusResponse": {
         "properties": {
@@ -505,6 +824,17 @@
           "status": {
             "type": "string",
             "title": "Status"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode"
           },
           "progress": {
             "anyOf": [
@@ -591,7 +921,8 @@
           "uuid",
           "status"
         ],
-        "title": "StatusResponse"
+        "title": "StatusResponse",
+        "description": "Detailed status information for a running or completed scan.\n\nAttributes:\n    uuid: Unique identifier of the scan.\n    status: Current status (``pending``, ``running``, ``completed``, ``error``).\n    mode: Scan mode that was requested.\n    progress: Human-readable progress string.\n    progress_percentage: Numeric progress from 0 to 100.\n    current_step: Name of the pipeline step currently executing.\n    start_time: Timestamp when the scan was initiated.\n    end_time: Timestamp when the scan finished (if applicable).\n    error: Error message if the scan failed.\n    scan_directory: Filesystem path to the scan output directory."
       },
       "ValidationError": {
         "properties": {
@@ -616,6 +947,13 @@
           "type": {
             "type": "string",
             "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
           }
         },
         "type": "object",

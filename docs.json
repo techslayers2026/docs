@@ -109,18 +109,17 @@
           {
             "group": "API Reference",
             "pages": [
-              "darkrecon/api/process-emails",
-              "darkrecon/api/view-breaches",
-              "darkrecon/api/download-report"
+              "darkrecon/api/start-scan",
+              "darkrecon/api/get-scan-results"
             ]
           },
           {
             "group": "Schemas",
             "pages": [
-              "darkrecon/schemas/recon-request",
-              "darkrecon/schemas/recon-response",
-              "darkrecon/schemas/breaches-response",
-              "darkrecon/schemas/report-info"
+              "darkrecon/schemas/scan-request",
+              "darkrecon/schemas/scan-response",
+              "darkrecon/schemas/scan-result",
+              "darkrecon/schemas/error"
             ]
           }
         ]
@@ -161,12 +160,13 @@
               "senthrex/api/start-scan-post",
               "senthrex/api/start-scan-get",
               "senthrex/api/get-status",
+              "senthrex/api/get-results",
+              "senthrex/api/get-scan-json",
               "senthrex/api/download-report",
               "senthrex/api/list-scans",
-              "senthrex/api/delete-scan",
               "senthrex/api/get-stats",
               "senthrex/api/get-logs",
-              "senthrex/api/debug-scan"
+              "senthrex/api/stop-scan"
             ]
           }
         ]

@@ -1,0 +1,14 @@
+---
+title: Start scan
+description: Scan emails, phone numbers, or a domain for breach data.
+openapi: "openapi/darkrecon.json POST /scan"
+---
+
+# Start scan
+
+Creates a breach scan and returns a `scan_id` used for follow-up retrieval.
+
+## Request rules
+
+- Send either `queries` (emails/phones) or `domain`
+- Do not send both at the same time

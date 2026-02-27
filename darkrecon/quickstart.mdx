@@ -1,11 +1,11 @@
 ---
 title: Quickstart
-description: Generate a breach report and download the ZIP output.
+description: Start a DarkRecon scan and retrieve results by scan UUID.
 ---
 
 # Quickstart
 
-This guide walks through generating a DarkRecon report from email addresses, then downloading the report output.
+This guide walks through creating a DarkRecon scan and retrieving full results via `scan_id`.
 
 ## 1) Set your API key
 
@@ -13,47 +13,45 @@ This guide walks through generating a DarkRecon report from email addresses, the
 export DARKRECON_API_KEY="YOUR_API_KEY"
 ```
 
-## 2) Generate a report
+## 2) Start a scan
 
-Call `POST /recon` with a name and one or more email addresses:
+Call `POST /scan` with either:
+
+- `queries`: a list of emails and/or phone numbers
+- `domain`: a domain to enumerate and scan
 
 ```bash
-curl -X POST "https://darkrecon.1337807.xyz/recon" \
+curl -X POST "https://darkrecon.1337807.xyz/scan" \
   -H "Content-Type: application/json" \
   -H "X-API-Key: $DARKRECON_API_KEY" \
   -d '{
-    "name": "John Doe",
-    "emails": ["john@example.com"]
+    "queries": ["john@example.com", "+1234567890"]
   }'
 ```
 
 The response includes:
 
-- `status`: `success` or `no_results`
-- `output`: a report folder name you’ll use for downloads
+- `scan_id`: UUID used to fetch full results
+- `status`: `success`, `no_results`, or `no_queries`
 - `total_breaches`: count of breaches found
 
-## 3) List available reports
+## 3) Retrieve full scan results
 
 ```bash
-curl -X GET "https://darkrecon.1337807.xyz/view_breaches" \
+curl -X GET "https://darkrecon.1337807.xyz/scan/YOUR_SCAN_ID" \
   -H "X-API-Key: $DARKRECON_API_KEY"
 ```
 
-## 4) Download the ZIP
+The response includes:
 
-Use the `report_name` you received as `output` (or from `/view_breaches`):
-
-```bash
-curl -L "https://darkrecon.1337807.xyz/download/YOUR_REPORT_NAME" \
-  -H "X-API-Key: $DARKRECON_API_KEY" \
-  -o darkrecon-report.zip
-```
+- `queries` and optional `domain`
+- `results.data`: values by category (emails, usernames, passwords, IPs, etc.)
+- `results.counts`: aggregated counts per category
+- `results.occurrences`: breach-source occurrence metadata
 
 ## Next steps
 
-- `/darkrecon/api/process-emails`
-- `/darkrecon/api/view-breaches`
-- `/darkrecon/api/download-report`
-- `/darkrecon/schemas/recon-request`
-
+- `/darkrecon/api/start-scan`
+- `/darkrecon/api/get-scan-results`
+- `/darkrecon/schemas/scan-request`
+- `/darkrecon/schemas/scan-result`

@@ -1,15 +1,16 @@
 ---
 title: Overview
-description: Senthrex Simulation API for starting scans, tracking status, and retrieving reports.
+description: Senthrex Simulation API for starting security scans, tracking progress, and retrieving results.
 ---
 
 # Senthrex
 
-Senthrex provides an authenticated scan workflow:
+Senthrex provides an authenticated security scan workflow:
 
 1. Start a scan for a domain.
 2. Track progress and status.
-3. Retrieve reports, logs, and debugging output.
+3. Retrieve reports, logs, and structured JSON results.
+4. Stop scans when required.
 
 <Cards>
   <Card title="Quickstart" icon="rocket" href="/senthrex/quickstart">
@@ -30,13 +31,13 @@ Senthrex provides an authenticated scan workflow:
 ## Core resources
 
 - Scan lifecycle:
-  - Start scan: `POST /scan` (or `GET /scan`)
+  - Start scan: `POST /scan` (or `GET /scan`) with optional `mode` (`full` or `discovery`)
   - Status: `GET /status/{scan_uuid}`
+  - Results JSON: `GET /results/{scan_uuid}`
+  - Raw JSON artifact: `GET /json/{scan_uuid}`
   - Report: `GET /report/{scan_uuid}`
   - Logs: `GET /logs/{scan_uuid}`
-  - Debug: `GET /debug/{scan_uuid}`
+  - Stop scan: `POST /scan/{scan_uuid}/stop`
 - Fleet management:
   - List scans: `GET /scans`
-  - Delete scan: `DELETE /scan/{scan_uuid}`
   - Stats: `GET /stats`
-

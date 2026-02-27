@@ -14,11 +14,10 @@ All DarkRecon endpoints require an API key header.
 ## Example
 
 ```bash
-curl -X GET "https://darkrecon.1337807.xyz/view_breaches" \
+curl -X GET "https://darkrecon.1337807.xyz/scan/YOUR_SCAN_ID" \
   -H "X-API-Key: $DARKRECON_API_KEY"
 ```
 
 ## Errors
 
-- `403` typically indicates a missing/invalid API key.
-
+- `403` indicates a missing/invalid API key.

@@ -1,6 +1,6 @@
 ---
 title: Start scan (GET)
-description: Start a scan by sending the domain as a query parameter.
+description: Start a scan by sending the domain (and optional mode) as query parameters.
 openapi: "openapi/senthrex.json GET /scan"
 ---
 
@@ -8,3 +8,7 @@ openapi: "openapi/senthrex.json GET /scan"
 
 Starts a new scan for the provided `domain` query parameter.
 
+## Query parameters
+
+- `domain` (required): the domain to scan
+- `mode` (optional): `full` (default) or `discovery`

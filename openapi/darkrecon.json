@@ -1,9 +1,9 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Dark Recon Report Generation API",
-    "description": "API for processing emails and generating security breach reports",
-    "version": "1.0.0"
+    "title": "DarkRecon API",
+    "description": "API for scanning emails, phone numbers, and domains for breach data. Results are stored and retrievable via scan UUID.",
+    "version": "2.1.0"
   },
   "servers": [
     {
@@ -17,93 +17,78 @@
     }
   ],
   "paths": {
-    "/recon": {
+    "/scan": {
       "post": {
         "tags": [
-          "Recon"
+          "Scan"
         ],
-        "summary": "Process emails and generate security breach report",
-        "description": "Sends emails to Telegram bot, downloads breach data, analyzes findings, and generates a comprehensive security report",
-        "operationId": "recon",
+        "summary": "Scan emails, phone numbers, or a domain for breach data",
+        "description": "Accepts either a list of emails/phone numbers OR a domain name. When a domain is provided, emails are enumerated from breach data for that domain and scanned automatically. Results are stored in the database and can be retrieved later via the scan UUID.",
+        "operationId": "scan",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ReconRequest"
+                "$ref": "#/components/schemas/ScanRequest"
               },
-              "example": {
-                "emails": [
-                  "example@email.com",
-                  "another@email.com"
-                ],
-                "name": "John Doe"
+              "examples": {
+                "emails_only": {
+                  "summary": "Scan by emails",
+                  "value": {
+                    "queries": [
+                      "user@example.com",
+                      "other@example.com"
+                    ]
+                  }
+                },
+                "domain_only": {
+                  "summary": "Scan by domain",
+                  "value": {
+                    "domain": "example.com"
+                  }
+                },
+                "phone_only": {
+                  "summary": "Scan by phone number",
+                  "value": {
+                    "queries": [
+                      "+1234567890"
+                    ]
+                  }
+                }
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Report generated successfully",
+            "description": "Scan completed",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ReconResponse"
+                  "$ref": "#/components/schemas/ScanResponse"
                 },
-                "example": {
-                  "status": "success",
-                  "output": "abc123_JohnDoe_xyz789",
-                  "total_breaches": 15
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Invalid API key",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/view_breaches": {
-      "get": {
-        "tags": [
-          "Breaches"
-        ],
-        "summary": "View available breach reports",
-        "description": "Returns a list of all available breach reports that have been generated",
-        "operationId": "viewBreaches",
-        "responses": {
-          "200": {
-            "description": "List of available reports",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BreachesResponse"
-                },
-                "example": {
-                  "reports": [
-                    {
-                      "report_name": "abc123_JohnDoe_xyz789",
-                      "created_at": "2024-01-15T10:30:00Z"
+                "examples": {
+                  "success": {
+                    "summary": "Breaches found",
+                    "value": {
+                      "scan_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "status": "success",
+                      "total_breaches": 125,
+                      "discovered_emails": [
+                        "user@example.com",
+                        "admin@example.com"
+                      ]
                     }
-                  ]
+                  },
+                  "no_results": {
+                    "summary": "No breaches found",
+                    "value": {
+                      "scan_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "status": "no_results",
+                      "total_breaches": 0
+                    }
+                  }
                 }
               }
             }
@@ -117,44 +102,87 @@
                 }
               }
             }
+          },
+          "502": {
+            "description": "Upstream API error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
     },
-    "/download/{report_name}": {
+    "/scan/{scan_id}": {
       "get": {
         "tags": [
-          "Download"
+          "Scan"
         ],
-        "summary": "Download report as ZIP file",
-        "description": "Downloads a complete report folder as a ZIP archive containing all HTML reports, images, fonts, and stylesheets",
-        "operationId": "downloadReport",
+        "summary": "Get scan results by UUID",
+        "description": "Retrieve the full results of a previously completed scan, including breach data categorized by type (usernames, emails, passwords, IPs, etc.) and occurrence tracking per breach source.",
+        "operationId": "getScan",
         "parameters": [
           {
-            "name": "report_name",
+            "name": "scan_id",
             "in": "path",
             "required": true,
-            "description": "Name of the report folder to download",
+            "description": "The UUID returned from POST /scan",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             },
-            "example": "abc123_JohnDoe_xyz789"
+            "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
           }
         ],
         "responses": {
           "200": {
-            "description": "ZIP file download",
+            "description": "Scan results",
             "content": {
-              "application/zip": {
+              "application/json": {
                 "schema": {
-                  "type": "string",
-                  "format": "binary"
+                  "$ref": "#/components/schemas/ScanResult"
+                },
+                "example": {
+                  "scan_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                  "queries": [
+                    "user@example.com"
+                  ],
+                  "domain": null,
+                  "total_breaches": 12,
+                  "status": "success",
+                  "created_at": "2026-02-26T10:30:00+00:00",
+                  "results": {
+                    "occurrences": {
+                      "emails_occurances": "BreachDB1, BreachDB2",
+                      "passwords_occurances": "BreachDB1"
+                    },
+                    "data": {
+                      "emails": [
+                        "user@example.com"
+                      ],
+                      "passwords": [
+                        "pa**rd"
+                      ],
+                      "usernames": [
+                        "johndoe"
+                      ]
+                    },
+                    "counts": {
+                      "total_breaches": 12,
+                      "usernames_count": 1,
+                      "emails_count": 1,
+                      "passwords_count": 1
+                    }
+                  }
                 }
               }
             }
           },
           "403": {
-            "description": "Invalid API key or access forbidden",
+            "description": "Invalid API key",
             "content": {
               "application/json": {
                 "schema": {
@@ -164,7 +192,7 @@
             }
           },
           "404": {
-            "description": "Report folder not found",
+            "description": "Scan not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -183,78 +211,144 @@
         "type": "apiKey",
         "in": "header",
         "name": "X-API-Key",
-        "description": "API key for authentication"
+        "description": "API key for authentication. Create keys via the admin dashboard."
       }
     },
     "schemas": {
-      "ReconRequest": {
+      "ScanRequest": {
         "type": "object",
-        "required": [
-          "emails",
-          "name"
-        ],
         "properties": {
-          "emails": {
+          "queries": {
             "type": "array",
             "items": {
-              "type": "string",
-              "format": "email"
+              "type": "string"
             },
-            "description": "List of email addresses to check for breaches",
-            "minItems": 1
+            "description": "List of emails and/or phone numbers to scan for breaches. Provide this OR domain, not both.",
+            "example": [
+              "user@example.com",
+              "+1234567890"
+            ]
           },
-          "name": {
+          "domain": {
             "type": "string",
-            "description": "Name associated with the report",
-            "example": "John Doe"
+            "description": "Domain name to enumerate emails from and scan. Provide this OR queries, not both.",
+            "example": "example.com"
           }
         }
       },
-      "ReconResponse": {
+      "ScanResponse": {
         "type": "object",
         "properties": {
+          "scan_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for retrieving scan results via GET /scan/{scan_id}"
+          },
           "status": {
             "type": "string",
             "enum": [
               "success",
-              "no_results"
+              "no_results",
+              "no_queries"
             ],
-            "description": "Status of the operation"
-          },
-          "output": {
-            "type": "string",
-            "description": "Unique report folder name",
-            "example": "abc123_JohnDoe_xyz789"
+            "description": "Scan result status"
           },
           "total_breaches": {
             "type": "integer",
             "description": "Total number of breaches found",
             "minimum": 0
-          }
-        }
-      },
-      "BreachesResponse": {
-        "type": "object",
-        "properties": {
-          "reports": {
+          },
+          "discovered_emails": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ReportInfo"
-            }
+              "type": "string"
+            },
+            "description": "Emails discovered from domain enumeration (only present when domain was provided)"
+          },
+          "message": {
+            "type": "string",
+            "description": "Additional context (e.g. when no queries were provided)"
           }
         }
       },
-      "ReportInfo": {
+      "ScanResult": {
         "type": "object",
         "properties": {
-          "report_name": {
+          "scan_id": {
             "type": "string",
-            "description": "Name of the report folder"
+            "format": "uuid"
+          },
+          "queries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The queries that were scanned"
+          },
+          "domain": {
+            "type": "string",
+            "nullable": true,
+            "description": "Domain that was enumerated (if provided)"
+          },
+          "total_breaches": {
+            "type": "integer",
+            "description": "Total number of breaches found"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "success",
+              "no_results",
+              "no_queries",
+              "error"
+            ],
+            "description": "Scan result status"
           },
           "created_at": {
             "type": "string",
             "format": "date-time",
-            "description": "Timestamp when the report was created"
+            "description": "When the scan was performed"
+          },
+          "discovered_emails": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Emails discovered from domain enumeration"
+          },
+          "error_detail": {
+            "type": "string",
+            "description": "Error message if scan failed"
+          },
+          "results": {
+            "type": "object",
+            "description": "Breach analysis results (only present for successful scans)",
+            "properties": {
+              "occurrences": {
+                "type": "object",
+                "description": "Comma-separated breach source names per data category",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "data": {
+                "type": "object",
+                "description": "Unique values found per category (usernames, emails, passwords, encrypted_passwords, fullnames, addresses, ips, telephones, vehicles, dateofbirths, geolocations)",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "counts": {
+                "type": "object",
+                "description": "Count of unique values per category plus total_breaches",
+                "additionalProperties": {
+                  "type": "integer"
+                }
+              }
+            }
           }
         }
       },

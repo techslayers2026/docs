@@ -1,6 +1,6 @@
 ---
 title: Quickstart
-description: Start a Senthrex scan, poll for status, and retrieve outputs.
+description: Start a Senthrex scan, monitor progress, and retrieve reports and JSON results.
 ---
 
 # Quickstart
@@ -19,8 +19,11 @@ export SENTHREX_TOKEN="YOUR_BEARER_TOKEN"
 curl -X POST "https://rts-senthrex.slayers.tech/scan" \
   -H "Authorization: Bearer $SENTHREX_TOKEN" \
   -H "Content-Type: application/x-www-form-urlencoded" \
-  --data-urlencode "domain=example.com"
+  --data-urlencode "domain=example.com" \
+  --data-urlencode "mode=full"
 ```
+
+`mode` is optional and defaults to `full`. Use `discovery` for a lighter scan profile.
 
 The response includes a `uuid` (scan UUID). Use it as `scan_uuid` in all follow-up requests.
 
@@ -33,10 +36,10 @@ curl -X GET "https://rts-senthrex.slayers.tech/status/YOUR_SCAN_UUID" \
 
 ## 4) Retrieve outputs
 
-### Report
+### Structured results
 
 ```bash
-curl -X GET "https://rts-senthrex.slayers.tech/report/YOUR_SCAN_UUID" \
+curl -X GET "https://rts-senthrex.slayers.tech/results/YOUR_SCAN_UUID" \
   -H "Authorization: Bearer $SENTHREX_TOKEN"
 ```
 
@@ -47,10 +50,24 @@ curl -X GET "https://rts-senthrex.slayers.tech/logs/YOUR_SCAN_UUID" \
   -H "Authorization: Bearer $SENTHREX_TOKEN"
 ```
 
-### Debug output
+### Report archive
 
 ```bash
-curl -X GET "https://rts-senthrex.slayers.tech/debug/YOUR_SCAN_UUID" \
+curl -X GET "https://rts-senthrex.slayers.tech/report/YOUR_SCAN_UUID" \
+  -H "Authorization: Bearer $SENTHREX_TOKEN"
+```
+
+### Raw JSON artifact
+
+```bash
+curl -X GET "https://rts-senthrex.slayers.tech/json/YOUR_SCAN_UUID" \
+  -H "Authorization: Bearer $SENTHREX_TOKEN"
+```
+
+## 5) Stop a running scan (optional)
+
+```bash
+curl -X POST "https://rts-senthrex.slayers.tech/scan/YOUR_SCAN_UUID/stop" \
   -H "Authorization: Bearer $SENTHREX_TOKEN"
 ```
 
@@ -58,5 +75,6 @@ curl -X GET "https://rts-senthrex.slayers.tech/debug/YOUR_SCAN_UUID" \
 
 - `/senthrex/api/start-scan-post`
 - `/senthrex/api/get-status`
+- `/senthrex/api/get-results`
+- `/senthrex/api/get-scan-json`
 - `/senthrex/api/list-scans`
-

@@ -175,9 +175,5 @@
       "name": "API-Key",
       "in": "header"
     }
-  },
-  "host": "rtswpscan.slayers.tech",
-  "schemes": [
-    "https"
-  ]
+  }
 }

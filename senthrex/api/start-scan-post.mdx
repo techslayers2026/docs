@@ -1,6 +1,6 @@
 ---
 title: Start scan (POST)
-description: Start a scan by sending the domain in a form-encoded body.
+description: Start a scan by sending the domain (and optional mode) in a form-encoded body.
 openapi: "openapi/senthrex.json POST /scan"
 ---
 
@@ -13,4 +13,4 @@ Starts a new scan for the provided `domain`.
 `application/x-www-form-urlencoded`:
 
 - `domain` (required): the domain to scan
-
+- `mode` (optional): `full` (default) or `discovery`
