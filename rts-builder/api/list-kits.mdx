@@ -1,0 +1,26 @@
+---
+title: List available kits
+description: Return the externally accessible kits for the calling API key.
+openapi: "openapi/rts-builder.json GET /api/v1/external/kits"
+---
+
+# List available kits
+
+## Notes
+
+- The response always includes `kits` and `total`.
+- A `200` with an empty `kits` array means the key authenticated successfully but has no externally visible kits.
+- In live testing, this also occurred for a newly created team API key after a kit had been marked `exposed`, which suggests an additional access grant or backend entitlement step beyond simply toggling exposure.
+
+## Method behavior
+
+Observed method handling:
+
+- `GET /api/v1/external/kits` returns `200`
+- `HEAD /api/v1/external/kits` returns `404`
+- `OPTIONS /api/v1/external/kits` returns `404`
+
+## Related schemas
+
+- [ListKitsResponse](/rts-builder/schemas/list-kits-response)
+- [ErrorResponse](/rts-builder/schemas/error-response)

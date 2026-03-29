@@ -148,6 +148,35 @@
         ]
       },
       {
+        "group": "RTS Builder",
+        "icon": "blocks",
+        "pages": [
+          "rts-builder/overview",
+          "rts-builder/quickstart",
+          "rts-builder/authentication",
+          {
+            "group": "API Reference",
+            "pages": [
+              "rts-builder/api/list-kits",
+              "rts-builder/api/start-run",
+              "rts-builder/api/get-status",
+              "rts-builder/api/get-results"
+            ]
+          },
+          {
+            "group": "Schemas",
+            "pages": [
+              "rts-builder/schemas/list-kits-response",
+              "rts-builder/schemas/start-run-request",
+              "rts-builder/schemas/start-run-response-inferred",
+              "rts-builder/schemas/run-status-response",
+              "rts-builder/schemas/run-results-response",
+              "rts-builder/schemas/error-response"
+            ]
+          }
+        ]
+      },
+      {
         "group": "Senthrex",
         "icon": "siren",
         "pages": [

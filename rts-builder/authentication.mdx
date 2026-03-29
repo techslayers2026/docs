@@ -1,0 +1,54 @@
+---
+title: Authentication
+description: Authenticate RTS Builder external API calls with the X-API-Key header.
+---
+
+# Authentication
+
+RTS Builder external endpoints authenticate with an API key in the `X-API-Key` header.
+
+```bash
+curl "$RTS_BUILDER_BASE_URL/api/v1/external/kits" \
+  -H "X-API-Key: your-api-key"
+```
+
+<Note>
+RTS Builder keys are tenant-scoped. A valid key from another team cannot read your run state or results.
+</Note>
+
+## Missing key
+
+Observed response:
+
+```http
+HTTP/2 401
+```
+
+```json
+{
+  "error": "missing X-API-Key header"
+}
+```
+
+## Invalid key
+
+Observed response:
+
+```http
+HTTP/2 401
+```
+
+```json
+{
+  "error": "invalid API key"
+}
+```
+
+## Tenant scoping
+
+Run visibility is tenant-scoped. In live testing, a different team's API key received `404` with `{"error":"run not found"}` for both:
+
+- `GET /api/v1/external/status/{run_id}`
+- `GET /api/v1/external/results/{run_id}`
+
+That means external run IDs are not globally readable just because the caller has a valid API key.

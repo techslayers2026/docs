@@ -1,0 +1,28 @@
+---
+title: Start run
+description: Start a new external RTS Builder run for an exposed kit slug.
+openapi: "openapi/rts-builder.json POST /api/v1/external/{kitSlug}"
+---
+
+# Start run
+
+## Request body
+
+The public contract expects an `inputs` object. The exact input names depend on the exposed kit's runtime variables.
+
+## Success shape
+
+<Warning>
+The external success payload could not be verified directly because the live environment rejected `POST /api/v1/external/{kit_slug}` for both:
+
+- the original user-provided key
+- a newly created team API key in the same tenant as an exposed kit
+</Warning>
+
+The schema rendered above is therefore based on the internally verified builder run-start payload and is labeled as inferred in the OpenAPI document.
+
+## Related schemas
+
+- [StartRunRequest](/rts-builder/schemas/start-run-request)
+- [StartRunResponse (Inferred)](/rts-builder/schemas/start-run-response-inferred)
+- [ErrorResponse](/rts-builder/schemas/error-response)

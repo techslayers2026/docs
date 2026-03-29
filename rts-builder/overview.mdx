@@ -1,0 +1,67 @@
+---
+title: Overview
+description: External API for running exposed RTS Builder kits and retrieving run state and results.
+---
+
+# RTS Builder
+
+RTS Builder is a workflow-driven scanning platform. The external API is intentionally narrow:
+
+1. List the kits your API key can see
+2. Start a run for a specific exposed kit
+3. Poll run status
+4. Fetch structured results
+
+<Cards>
+  <Card title="Quickstart" icon="rocket" href="/rts-builder/quickstart">
+    Follow the list, start, status, results workflow end to end.
+  </Card>
+  <Card title="Authentication" icon="key-round" href="/rts-builder/authentication">
+    Send your API key in the `X-API-Key` header.
+  </Card>
+  <Card title="API Reference" icon="braces" href="/rts-builder/api/list-kits">
+    Review the external endpoints with Mintlify's interactive request and schema rendering.
+  </Card>
+</Cards>
+
+## Base URL
+
+`https://rts-builder.slayers.tech`
+
+## External workflow
+
+1. Build or import a kit in RTS Builder
+2. Expose the kit from the Kits page
+3. Create an API key in Settings
+4. Call `GET /api/v1/external/kits`
+5. Start a run with `POST /api/v1/external/{kit_slug}`
+6. Poll `GET /api/v1/external/status/{run_id}`
+7. Read `GET /api/v1/external/results/{run_id}`
+
+## Verification coverage
+
+| Endpoint family | Live verified | Notes |
+| --- | --- | --- |
+| `GET /api/v1/external/kits` | Yes | Only empty-list responses were observed. |
+| `POST /api/v1/external/{kitSlug}` | Partial | Error paths verified; success payload remains inferred. |
+| `GET /api/v1/external/status/{runId}` | Yes | Verified across four completed runs. |
+| `GET /api/v1/external/results/{runId}` | Yes | Verified across four completed runs. |
+
+<Warning>
+Live testing on March 28, 2026 Pacific / March 29, 2026 UTC confirmed that `status` and `results` work, but `kits` and `start` remained gated by an additional backend access check even for a same-tenant exposed kit.
+</Warning>
+
+## Live-tested behavior
+
+The notes below were verified on March 28, 2026 Pacific / March 29, 2026 UTC.
+
+- Missing `X-API-Key` returns `401` with `{"error":"missing X-API-Key header"}`.
+- Invalid API keys return `401` with `{"error":"invalid API key"}`.
+- `status` and `results` are tenant-scoped. A different team's API key receives `404` with `{"error":"run not found"}` for the same run ID.
+- `status` and `results` worked successfully for completed runs.
+- `list` and `start` showed an important access-control caveat in live testing:
+  Even after exposing a kit and creating a fresh API key in the same team, `GET /api/v1/external/kits` still returned an empty array and `POST /api/v1/external/{kit_slug}` returned `{"error":"API key does not have access to this kit"}`.
+
+## Result parsing caveat
+
+Some tool adapters currently pass decorative CLI output through the structured findings parser. During live testing with a `crt`-based kit, box-drawing table rows were returned as findings alongside real hosts. Consumers should normalize results instead of assuming every `finding.host` value is a clean hostname.

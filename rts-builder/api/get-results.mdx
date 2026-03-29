@@ -1,0 +1,46 @@
+---
+title: Get run results
+description: Retrieve aggregate findings and per-step parsed results for a completed run.
+openapi: "openapi/rts-builder.json GET /api/v1/external/results/{runId}"
+---
+
+# Get run results
+
+## Top-level fields
+
+- `aggregate`: Summary counters across the run
+- `run_id`: Run UUID
+- `status`: Terminal or in-progress run state
+- `steps`: Per-tool parsed result payloads
+
+## Aggregate fields
+
+- `findings_by_severity`
+- `risk_score`
+- `total_findings`
+- `unique_hosts`
+- `unique_subdomains`
+
+## Per-step fields
+
+- `exit_code`
+- `id`
+- `status`
+- `tool`
+- `parsed_results`
+
+`parsed_results` is tool-specific. In the `crt` runs tested for these docs, it contained:
+
+- `tool`
+- `type`
+- `summary`
+- `findings`
+
+## Parser caveat
+
+The current `crt` adapter did not fully clean its CLI output before building findings. Decorative table rows and one database recovery error line were surfaced as `finding.host` values during live testing. If you consume results programmatically, sanitize entries instead of assuming every `host` value is a valid hostname.
+
+## Related schemas
+
+- [RunResultsResponse](/rts-builder/schemas/run-results-response)
+- [ErrorResponse](/rts-builder/schemas/error-response)

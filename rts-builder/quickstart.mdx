@@ -1,0 +1,157 @@
+---
+title: Quickstart
+description: Typical RTS Builder external API flow, plus the live-tested caveats you should account for today.
+---
+
+# Quickstart
+
+## Authenticate
+
+Every request uses the `X-API-Key` header:
+
+```bash
+export RTS_BUILDER_API_KEY="your-api-key"
+export RTS_BUILDER_BASE_URL="https://rts-builder.slayers.tech"
+```
+
+<Note>
+Keep the API key server-side. The key determines tenant scope for kit visibility and run access.
+</Note>
+
+## List accessible kits
+
+```bash
+curl "$RTS_BUILDER_BASE_URL/api/v1/external/kits" \
+  -H "X-API-Key: $RTS_BUILDER_API_KEY"
+```
+
+Example empty response:
+
+```json
+{
+  "kits": [],
+  "total": 0
+}
+```
+
+## Start a run
+
+```bash
+curl -X POST \
+  "$RTS_BUILDER_BASE_URL/api/v1/external/<kit-slug>" \
+  -H "X-API-Key: $RTS_BUILDER_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"inputs":{"target":"example.com"}}'
+```
+
+<Warning>
+External start success could not be completed with any tested key. Treat the example request as the intended contract and the success schema in the API reference as inferred until the access-control gap is fixed.
+</Warning>
+
+## Poll status
+
+```bash
+curl "$RTS_BUILDER_BASE_URL/api/v1/external/status/<run_id>" \
+  -H "X-API-Key: $RTS_BUILDER_API_KEY"
+```
+
+Example completed status:
+
+```json
+{
+  "error": "",
+  "finished_at": "2026-03-29T02:33:41.139079Z",
+  "run_id": "9bdeb4af-cab4-4de3-9f0f-758771d10991",
+  "started_at": "2026-03-29T02:32:54.167691Z",
+  "status": "completed",
+  "steps": [
+    {
+      "id": "993af399-0e1a-456e-ba12-d465e7f9a5e6",
+      "node_id": "tool-1",
+      "tool": "crt",
+      "status": "completed",
+      "exit_code": 0
+    }
+  ]
+}
+```
+
+## Fetch results
+
+```bash
+curl "$RTS_BUILDER_BASE_URL/api/v1/external/results/<run_id>" \
+  -H "X-API-Key: $RTS_BUILDER_API_KEY"
+```
+
+Top-level result shape:
+
+```json
+{
+  "aggregate": {
+    "findings_by_severity": {
+      "critical": 0,
+      "high": 0,
+      "info": 6,
+      "low": 0,
+      "medium": 0
+    },
+    "risk_score": 0,
+    "total_findings": 6,
+    "unique_hosts": 6,
+    "unique_subdomains": 6
+  },
+  "run_id": "9bdeb4af-cab4-4de3-9f0f-758771d10991",
+  "status": "completed",
+  "steps": [
+    {
+      "exit_code": 0,
+      "id": "993af399-0e1a-456e-ba12-d465e7f9a5e6",
+      "status": "completed",
+      "tool": "crt",
+      "parsed_results": {
+        "tool": "crt",
+        "type": "ct_enumeration",
+        "summary": {
+          "total_subdomains": 6
+        },
+        "findings": []
+      }
+    }
+  ]
+}
+```
+
+## Live validation snapshot
+
+These runs were started internally in RTS Builder and then retrieved through the external `status` and `results` endpoints on March 28, 2026 Pacific / March 29, 2026 UTC:
+
+| Target | Final status | `total_findings` | `unique_subdomains` |
+| --- | --- | ---: | ---: |
+| `techslayers.ca` | `completed` | 6 | 6 |
+| `techslayers.com` | `completed` | 25 | 25 |
+| `beta.redteamsuite.com` | `completed` | 3 | 3 |
+| `ameyalambat.com` | `completed` | 1 | 1 |
+
+## Important caveat
+
+In live testing, the intended public flow was only partially available:
+
+- External `status` and `results` worked for runs owned by the same tenant.
+- External `list` and `start` did not automatically work with a newly created team API key, even after the kit was marked `exposed`.
+
+Observed responses:
+
+```json
+{
+  "kits": [],
+  "total": 0
+}
+```
+
+```json
+{
+  "error": "API key does not have access to this kit"
+}
+```
+
+Treat this as a current access-control dependency: a valid key must be explicitly allowed to see the exposed kit, or the backend currently needs an additional grant step that is not exposed in the UI.

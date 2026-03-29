@@ -1,0 +1,22 @@
+---
+title: Get run status
+description: Fetch status, timestamps, and step state for a run ID.
+openapi: "openapi/rts-builder.json GET /api/v1/external/status/{runId}"
+---
+
+# Get run status
+
+## Status transitions
+
+Observed values:
+
+- `pending`
+- `running`
+- `completed`
+
+Internal run pages also account for `failed` and `cancelled`, and callers should handle those states as well.
+
+## Related schemas
+
+- [RunStatusResponse](/rts-builder/schemas/run-status-response)
+- [ErrorResponse](/rts-builder/schemas/error-response)

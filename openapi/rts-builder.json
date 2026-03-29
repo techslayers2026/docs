@@ -1,0 +1,865 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "RTS Builder External API",
+    "version": "2026-03-29",
+    "description": "Public API for listing externally accessible RTS Builder kits, starting runs, polling run status, and retrieving parsed results. Verified against the live service on March 28, 2026 Pacific / March 29, 2026 UTC. The 201 response for POST /api/v1/external/{kitSlug} is inferred from the internally verified builder run endpoint because external start access returned 403 during live testing."
+  },
+  "servers": [
+    {
+      "url": "https://rts-builder.slayers.tech",
+      "description": "RTS Builder production"
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "External Kits",
+      "description": "Kit discovery and run creation."
+    },
+    {
+      "name": "Runs",
+      "description": "Run lifecycle and result retrieval."
+    }
+  ],
+  "paths": {
+    "/api/v1/external/kits": {
+      "get": {
+        "tags": [
+          "External Kits"
+        ],
+        "summary": "List available kits",
+        "description": "Returns the kits visible to the calling API key. Live testing only produced authenticated empty-list responses, including for a same-tenant key after a kit was marked exposed.",
+        "operationId": "listExternalKits",
+        "responses": {
+          "200": {
+            "description": "Authenticated request succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListKitsResponse"
+                },
+                "examples": {
+                  "empty": {
+                    "summary": "Observed empty list response",
+                    "value": {
+                      "kits": [],
+                      "total": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "missingHeader": {
+                    "summary": "Missing X-API-Key header",
+                    "value": {
+                      "error": "missing X-API-Key header"
+                    }
+                  },
+                  "invalidKey": {
+                    "summary": "Invalid API key",
+                    "value": {
+                      "error": "invalid API key"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/external/{kitSlug}": {
+      "post": {
+        "tags": [
+          "External Kits"
+        ],
+        "summary": "Start a run",
+        "description": "Starts a new run for an exposed kit slug. The success schema below is inferred from the internally verified /api/kits/{id}/run payload because the external endpoint returned 403 for the live exposed test kit on March 29, 2026 UTC.",
+        "operationId": "startExternalRun",
+        "parameters": [
+          {
+            "name": "kitSlug",
+            "in": "path",
+            "required": true,
+            "description": "Kit slug shown in RTS Builder.",
+            "schema": {
+              "type": "string",
+              "example": "external-api-docs-probe"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartRunRequest"
+              },
+              "examples": {
+                "domainScan": {
+                  "summary": "Single target input",
+                  "value": {
+                    "inputs": {
+                      "target": "example.com"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Run started. Response body shape is inferred, not externally verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartRunResponseInferred"
+                },
+                "examples": {
+                  "inferred": {
+                    "summary": "Internally observed run start payload",
+                    "value": {
+                      "message": "run started",
+                      "run": {
+                        "id": "86fb79ef-f82c-4e8b-b8ab-23d0ccbff71b",
+                        "kit_id": "8d4be855-4208-40c7-9435-df8e2b35f8ad",
+                        "kit_version": 1,
+                        "status": "pending",
+                        "inputs": {
+                          "target": "techslayers.ca"
+                        },
+                        "use_proxy": false,
+                        "created_at": "2026-03-29T02:31:49.292757Z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "missingHeader": {
+                    "value": {
+                      "error": "missing X-API-Key header"
+                    }
+                  },
+                  "invalidKey": {
+                    "value": {
+                      "error": "invalid API key"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The API key authenticated but does not have access to the kit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "accessDenied": {
+                    "value": {
+                      "error": "API key does not have access to this kit"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kit slug not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "notFound": {
+                    "value": {
+                      "error": "kit not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/external/status/{runId}": {
+      "get": {
+        "tags": [
+          "Runs"
+        ],
+        "summary": "Get run status",
+        "description": "Returns top-level run state plus per-step status for a run owned by the same tenant as the API key.",
+        "operationId": "getExternalRunStatus",
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "description": "Run UUID.",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "9bdeb4af-cab4-4de3-9f0f-758771d10991"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Run status retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunStatusResponse"
+                },
+                "examples": {
+                  "completed": {
+                    "summary": "Observed completed run status",
+                    "value": {
+                      "error": "",
+                      "finished_at": "2026-03-29T02:33:41.139079Z",
+                      "run_id": "9bdeb4af-cab4-4de3-9f0f-758771d10991",
+                      "started_at": "2026-03-29T02:32:54.167691Z",
+                      "status": "completed",
+                      "steps": [
+                        {
+                          "id": "993af399-0e1a-456e-ba12-d465e7f9a5e6",
+                          "node_id": "tool-1",
+                          "tool": "crt",
+                          "status": "completed",
+                          "exit_code": 0
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Run ID format is invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "invalidRunId": {
+                    "value": {
+                      "error": "invalid run ID"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "missingHeader": {
+                    "value": {
+                      "error": "missing X-API-Key header"
+                    }
+                  },
+                  "invalidKey": {
+                    "value": {
+                      "error": "invalid API key"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Run UUID was valid but not visible to the caller's tenant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "notFound": {
+                    "value": {
+                      "error": "run not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/external/results/{runId}": {
+      "get": {
+        "tags": [
+          "Runs"
+        ],
+        "summary": "Get run results",
+        "description": "Returns aggregate counters plus per-step parsed results for a run owned by the same tenant as the API key.",
+        "operationId": "getExternalRunResults",
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "description": "Run UUID.",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "9bdeb4af-cab4-4de3-9f0f-758771d10991"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Run results retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunResultsResponse"
+                },
+                "examples": {
+                  "completed": {
+                    "summary": "Observed result payload",
+                    "value": {
+                      "aggregate": {
+                        "findings_by_severity": {
+                          "critical": 0,
+                          "high": 0,
+                          "info": 6,
+                          "low": 0,
+                          "medium": 0
+                        },
+                        "risk_score": 0,
+                        "total_findings": 6,
+                        "unique_hosts": 6,
+                        "unique_subdomains": 6
+                      },
+                      "run_id": "9bdeb4af-cab4-4de3-9f0f-758771d10991",
+                      "status": "completed",
+                      "steps": [
+                        {
+                          "exit_code": 0,
+                          "id": "993af399-0e1a-456e-ba12-d465e7f9a5e6",
+                          "status": "completed",
+                          "tool": "crt",
+                          "parsed_results": {
+                            "tool": "crt",
+                            "type": "ct_enumeration",
+                            "summary": {
+                              "total_subdomains": 6
+                            },
+                            "findings": [
+                              {
+                                "type": "subdomain",
+                                "severity": "info",
+                                "title": "| docs.techslayers.ca |",
+                                "detail": "CT log subdomain: | docs.techslayers.ca |",
+                                "host": "| docs.techslayers.ca |",
+                                "port": 0,
+                                "extra": {
+                                  "source": "certificate_transparency"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Run ID format is invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "invalidRunId": {
+                    "value": {
+                      "error": "invalid run ID"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "missingHeader": {
+                    "value": {
+                      "error": "missing X-API-Key header"
+                    }
+                  },
+                  "invalidKey": {
+                    "value": {
+                      "error": "invalid API key"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Run UUID was valid but not visible to the caller's tenant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "notFound": {
+                    "value": {
+                      "error": "run not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "Team-scoped RTS Builder API key."
+      }
+    },
+    "schemas": {
+      "ListKitsResponse": {
+        "type": "object",
+        "required": [
+          "kits",
+          "total"
+        ],
+        "properties": {
+          "kits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExternalKit"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "example": {
+          "kits": [],
+          "total": 0
+        }
+      },
+      "ExternalKit": {
+        "type": "object",
+        "description": "Kit object returned by the external kits listing. No live API key returned a non-empty `kits` array during testing, so field-level shape remains unverified.",
+        "additionalProperties": true,
+        "example": {}
+      },
+      "StartRunRequest": {
+        "type": "object",
+        "required": [
+          "inputs"
+        ],
+        "properties": {
+          "inputs": {
+            "$ref": "#/components/schemas/InputMap"
+          }
+        },
+        "example": {
+          "inputs": {
+            "target": "example.com"
+          }
+        }
+      },
+      "InputMap": {
+        "type": "object",
+        "description": "Runtime variable values keyed by kit variable name.",
+        "additionalProperties": {
+          "description": "Kit input value. Type depends on the kit variable definition and may be scalar, object, array, or null."
+        },
+        "example": {
+          "target": "example.com"
+        }
+      },
+      "StartRunResponseInferred": {
+        "type": "object",
+        "description": "Observed on the internal `/api/kits/{id}/run` endpoint. Expected to be close to the external response, but not externally verified as of March 29, 2026 UTC.",
+        "required": [
+          "message",
+          "run"
+        ],
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "run started"
+          },
+          "run": {
+            "$ref": "#/components/schemas/RunRecord"
+          }
+        }
+      },
+      "RunRecord": {
+        "type": "object",
+        "required": [
+          "id",
+          "kit_id",
+          "kit_version",
+          "status",
+          "inputs",
+          "use_proxy",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kit_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kit_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "status": {
+            "$ref": "#/components/schemas/RunState"
+          },
+          "inputs": {
+            "$ref": "#/components/schemas/InputMap"
+          },
+          "use_proxy": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RunState": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "running",
+          "completed",
+          "failed",
+          "cancelled"
+        ]
+      },
+      "RunStatusResponse": {
+        "type": "object",
+        "required": [
+          "error",
+          "run_id",
+          "status",
+          "steps"
+        ],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Empty string on success."
+          },
+          "finished_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "run_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/RunState"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RunStatusStep"
+            }
+          }
+        }
+      },
+      "RunStatusStep": {
+        "type": "object",
+        "required": [
+          "id",
+          "node_id",
+          "tool",
+          "status",
+          "exit_code"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "node_id": {
+            "type": "string",
+            "example": "tool-1"
+          },
+          "tool": {
+            "type": "string",
+            "example": "crt"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RunState"
+          },
+          "exit_code": {
+            "type": "integer"
+          }
+        }
+      },
+      "RunResultsResponse": {
+        "type": "object",
+        "required": [
+          "aggregate",
+          "run_id",
+          "status",
+          "steps"
+        ],
+        "properties": {
+          "aggregate": {
+            "$ref": "#/components/schemas/AggregateSummary"
+          },
+          "run_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RunState"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RunResultStep"
+            }
+          }
+        }
+      },
+      "AggregateSummary": {
+        "type": "object",
+        "required": [
+          "findings_by_severity",
+          "risk_score",
+          "total_findings",
+          "unique_hosts",
+          "unique_subdomains"
+        ],
+        "properties": {
+          "findings_by_severity": {
+            "$ref": "#/components/schemas/SeverityCounts"
+          },
+          "risk_score": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "total_findings": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "unique_hosts": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "unique_subdomains": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "SeverityCounts": {
+        "type": "object",
+        "required": [
+          "critical",
+          "high",
+          "medium",
+          "low",
+          "info"
+        ],
+        "properties": {
+          "critical": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "high": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "medium": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "low": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "info": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "RunResultStep": {
+        "type": "object",
+        "required": [
+          "exit_code",
+          "id",
+          "status",
+          "tool",
+          "parsed_results"
+        ],
+        "properties": {
+          "exit_code": {
+            "type": "integer"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RunState"
+          },
+          "tool": {
+            "type": "string",
+            "example": "crt"
+          },
+          "parsed_results": {
+            "$ref": "#/components/schemas/ParsedResults"
+          }
+        }
+      },
+      "ParsedResults": {
+        "type": "object",
+        "description": "Tool-specific parsed result envelope. The shape below reflects the live-tested `crt` adapter; other tools may return different fields inside `summary`, `findings`, or additional top-level keys.",
+        "required": [
+          "tool",
+          "type",
+          "summary",
+          "findings"
+        ],
+        "properties": {
+          "tool": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "findings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Finding"
+            }
+          }
+        }
+      },
+      "Finding": {
+        "type": "object",
+        "required": [
+          "type",
+          "severity",
+          "title",
+          "detail",
+          "host",
+          "port"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "subdomain"
+          },
+          "severity": {
+            "type": "string",
+            "example": "info"
+          },
+          "title": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "host": {
+            "type": "string"
+          },
+          "port": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "extra": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
