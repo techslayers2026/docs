@@ -6,4 +6,16 @@ openapi-schema: "openapi/darkrecon.json Error"
 
 # Error
 
-Returned on authentication, upstream, or not-found failures.
+Returned on application-level failures such as invalid API keys, upstream provider errors, or missing scan IDs.
+
+## Shape
+
+```json
+{
+  "detail": "Could not validate API key"
+}
+```
+
+## Important distinction
+
+Most application errors use the simple string-based `detail` shape above. Validation failures, including a missing `X-API-Key` header, use `HTTPValidationError` instead.

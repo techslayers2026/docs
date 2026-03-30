@@ -11,6 +11,10 @@ All DarkRecon endpoints require an API key header.
 
 - `X-API-Key: <your_api_key>`
 
+<Note>
+Keep the API key server-side. DarkRecon is designed for backend or trusted service-to-service usage, not direct browser exposure.
+</Note>
+
 ## Example
 
 ```bash
@@ -18,6 +22,32 @@ curl -X GET "https://darkrecon.1337807.xyz/scan/YOUR_SCAN_ID" \
   -H "X-API-Key: $DARKRECON_API_KEY"
 ```
 
-## Errors
+## Observed error behavior
 
-- `403` indicates a missing/invalid API key.
+- Missing `X-API-Key` currently returns `422` with a validation payload from the API framework.
+- Invalid or revoked API keys return `403` with a standard error body.
+
+Missing header example:
+
+```json
+{
+  "detail": [
+    {
+      "type": "missing",
+      "loc": ["header", "x-api-key"],
+      "msg": "Field required",
+      "input": null
+    }
+  ]
+}
+```
+
+Invalid key example:
+
+```json
+{
+  "detail": "Could not validate API key"
+}
+```
+
+See `/platform/authentication` for broader TechSlayers platform guidance.

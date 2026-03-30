@@ -1,9 +1,30 @@
 ---
 title: Get scan results
-description: Retrieve stored breach scan results by scan UUID.
+description: Retrieve the stored DarkRecon result payload by scan UUID.
 openapi: "openapi/darkrecon.json GET /scan/{scan_id}"
 ---
 
 # Get scan results
 
-Returns the full stored result payload for a previous scan, including categorized data, counts, and occurrences.
+Returns the full stored result payload for a previous scan.
+
+## What comes back
+
+- Top-level metadata such as `scan_id`, `status`, `total_breaches`, and `created_at`.
+- The original `keywords` array or the scanned `domain`.
+- Optional `discovered_emails` for domain-driven scans.
+- Optional `error_detail` when the stored scan ended in an error state.
+- A `results` object keyed by breach database name.
+
+## Result parsing notes
+
+- Each breach source object contains `InfoLeak`, `NumOfResults`, and `Data`.
+- `Data` is an array of raw records from that source. Field names vary across breach databases.
+- Password-like values are masked in returned records.
+- `total_breaches` counts breach sources, not the total number of records across all `Data` arrays.
+
+## Error behavior
+
+- `404`: the supplied `scan_id` does not exist.
+- `403`: the API key could not be validated.
+- `422`: request validation failed, such as a missing `X-API-Key` header or malformed path input.

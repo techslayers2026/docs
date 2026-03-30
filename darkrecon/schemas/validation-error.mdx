@@ -1,0 +1,16 @@
+---
+title: ValidationError
+description: Individual validation issue object nested inside HTTPValidationError.detail.
+openapi-schema: "openapi/darkrecon.json ValidationError"
+---
+
+# ValidationError
+
+Each entry in `HTTPValidationError.detail` describes one validation failure.
+
+## Key fields
+
+- `loc`: where the validation issue happened, such as `["header", "x-api-key"]`
+- `msg`: human-readable explanation
+- `type`: machine-readable validation category
+- `input`: offending value when the framework includes it

@@ -6,4 +6,21 @@ openapi-schema: "openapi/darkrecon.json ScanResult"
 
 # ScanResult
 
-Includes request context (`queries`/`domain`), scan status, breach counts, and categorized breach data.
+Contains the stored record returned by `GET /scan/{scan_id}`.
+
+## Top-level shape
+
+- `keywords` or `domain` describes what was scanned.
+- `status`, `total_breaches`, and `created_at` describe the stored scan record.
+- `discovered_emails` appears on domain scans when emails were enumerated.
+- `error_detail` is present if the scan ended in an error state.
+
+## `results` object
+
+- `results` is keyed by breach database name.
+- Each entry contains:
+  - `InfoLeak`: breach/source description.
+  - `NumOfResults`: number of records found in that breach.
+  - `Data`: array of raw breach records from that source.
+- Fields inside `Data` vary by breach source. Do not assume a fixed normalized schema.
+- Password-like values are masked in API output.

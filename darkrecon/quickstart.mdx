@@ -1,53 +1,98 @@
 ---
 title: Quickstart
-description: Start a DarkRecon scan and retrieve results by scan UUID.
+description: Start a DarkRecon scan with keywords or a domain and retrieve the stored results.
 ---
 
 # Quickstart
 
-This guide walks through creating a DarkRecon scan and retrieving full results via `scan_id`.
+This guide walks through the current DarkRecon flow: submit either `keywords` or `domain`, store the returned `scan_id`, and retrieve the raw stored result.
+
+<Warning>
+Use `keywords` in the request body. Older docs used `queries`, which no longer matches the live API.
+</Warning>
 
 ## 1) Set your API key
 
 ```bash
+export DARKRECON_BASE_URL="https://darkrecon.1337807.xyz"
 export DARKRECON_API_KEY="YOUR_API_KEY"
 ```
 
-## 2) Start a scan
-
-Call `POST /scan` with either:
-
-- `queries`: a list of emails and/or phone numbers
-- `domain`: a domain to enumerate and scan
+## 2) Start a keyword scan
 
 ```bash
-curl -X POST "https://darkrecon.1337807.xyz/scan" \
+curl -X POST "$DARKRECON_BASE_URL/scan" \
   -H "Content-Type: application/json" \
   -H "X-API-Key: $DARKRECON_API_KEY" \
   -d '{
-    "queries": ["john@example.com", "+1234567890"]
+    "keywords": ["john@example.com", "ShadowPlayer228"]
   }'
 ```
 
-The response includes:
+Example response:
 
-- `scan_id`: UUID used to fetch full results
-- `status`: `success`, `no_results`, or `no_queries`
-- `total_breaches`: count of breaches found
+```json
+{
+  "scan_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "status": "success",
+  "total_breaches": 3
+}
+```
 
-## 3) Retrieve full scan results
+## 3) Start a domain scan
 
 ```bash
-curl -X GET "https://darkrecon.1337807.xyz/scan/YOUR_SCAN_ID" \
+curl -X POST "$DARKRECON_BASE_URL/scan" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: $DARKRECON_API_KEY" \
+  -d '{
+    "domain": "example.com"
+  }'
+```
+
+Domain scans can include `discovered_emails` in the initial response when the service enumerates breached addresses before running the follow-on scan.
+
+## 4) Retrieve full scan results
+
+```bash
+curl -X GET "$DARKRECON_BASE_URL/scan/YOUR_SCAN_ID" \
   -H "X-API-Key: $DARKRECON_API_KEY"
 ```
 
-The response includes:
+Example stored result:
 
-- `queries` and optional `domain`
-- `results.data`: values by category (emails, usernames, passwords, IPs, etc.)
-- `results.counts`: aggregated counts per category
-- `results.occurrences`: breach-source occurrence metadata
+```json
+{
+  "scan_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "keywords": ["john@example.com"],
+  "domain": null,
+  "total_breaches": 3,
+  "status": "success",
+  "created_at": "2026-03-30T10:30:00+00:00",
+  "results": {
+    "AlpineReplay": {
+      "InfoLeak": "Description of the breach...",
+      "NumOfResults": 1,
+      "Data": [
+        {
+          "Email": "john@example.com",
+          "Password(bcrypt)": "$2****************************xC",
+          "FirstName": "John",
+          "LastName": "Doe"
+        }
+      ]
+    }
+  }
+}
+```
+
+## 5) Parse the result safely
+
+- `total_breaches` is the number of matched breach sources, not the total number of rows in all `Data` arrays.
+- `results` is keyed by breach database name.
+- Every source exposes `InfoLeak`, `NumOfResults`, and `Data`.
+- Records inside `Data` are source-specific and can have different field names across breaches.
+- Password-like values are masked in the API output.
 
 ## Next steps
 
@@ -55,3 +100,4 @@ The response includes:
 - `/darkrecon/api/get-scan-results`
 - `/darkrecon/schemas/scan-request`
 - `/darkrecon/schemas/scan-result`
+- `/darkrecon/schemas/http-validation-error`

@@ -1,14 +1,39 @@
 ---
 title: Start scan
-description: Scan emails, phone numbers, or a domain for breach data.
+description: Scan keywords or a domain for breach data and create a stored DarkRecon result.
 openapi: "openapi/darkrecon.json POST /scan"
 ---
 
 # Start scan
 
-Creates a breach scan and returns a `scan_id` used for follow-up retrieval.
+Creates a stored scan and returns the `scan_id` you will use for follow-up retrieval.
 
-## Request rules
+<Warning>
+The live API uses `keywords`. If you still send `queries`, your request will not match the current contract.
+</Warning>
 
-- Send either `queries` (emails/phones) or `domain`
-- Do not send both at the same time
+## Choose one input mode
+
+- `keywords`: send one or more search terms such as emails, phone numbers, usernames, IPs, passwords, car plates, social IDs, or composite strings.
+- `domain`: send a single domain to enumerate breached emails and scan the discovered addresses automatically.
+
+Do not send both in the same request.
+
+## Keyword guidance
+
+- Each keyword is queried independently against the breach dataset.
+- Composite queries are supported when you want to correlate multiple terms inside a single search string.
+- Domain scans can return `discovered_emails` immediately in the `POST /scan` response.
+
+## Response semantics
+
+- `scan_id` is the durable identifier for the stored scan.
+- `status` can be `success`, `no_results`, or `no_queries`.
+- `total_breaches` is the number of matched breach sources.
+- Full raw breach records are not returned by `POST /scan`; retrieve them with `GET /scan/{scan_id}`.
+
+## Error behavior
+
+- `422`: request validation failed, including a missing `X-API-Key` header or malformed request structure.
+- `403`: the API key could not be validated.
+- `502`: the upstream breach-data provider returned an error.

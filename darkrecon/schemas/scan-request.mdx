@@ -7,3 +7,25 @@ openapi-schema: "openapi/darkrecon.json ScanRequest"
 # ScanRequest
 
 Input payload for `POST /scan`.
+
+## Rules
+
+- Send exactly one of `keywords` or `domain`.
+- `keywords` replaces the older `queries` field from previous docs.
+- `keywords` can include emails, phone numbers, usernames, IPs, passwords, car plates, social IDs, or composite search strings.
+
+Keyword example:
+
+```json
+{
+  "keywords": ["user@example.com", "ShadowPlayer228"]
+}
+```
+
+Domain example:
+
+```json
+{
+  "domain": "example.com"
+}
+```

@@ -1,15 +1,19 @@
 ---
 title: Overview
-description: DarkRecon API for scanning emails, phones, and domains for breach intelligence.
+description: DarkRecon API for scanning keywords or domains for breach intelligence and retrieving stored results by scan ID.
 ---
 
 # DarkRecon
 
-DarkRecon helps you scan emails, phone numbers, or domains for breach intelligence and retrieve structured results by scan UUID.
+DarkRecon is a stored-scan API for breach intelligence lookups. Send either a `keywords` array or a `domain`, receive a `scan_id`, and use that identifier to fetch the full stored result later.
+
+<Warning>
+Older examples used `queries` in the request body. The current API expects `keywords`.
+</Warning>
 
 <Cards>
   <Card title="Quickstart" icon="rocket" href="/darkrecon/quickstart">
-    Run your first scan and fetch stored results.
+    Run a keyword or domain scan and fetch stored results.
   </Card>
   <Card title="Authentication" icon="key-round" href="/darkrecon/authentication">
     Use `X-API-Key` on every request.
@@ -23,6 +27,18 @@ DarkRecon helps you scan emails, phone numbers, or domains for breach intelligen
 
 `https://darkrecon.1337807.xyz`
 
+## What you can scan
+
+- Email addresses
+- Phone numbers
+- Usernames and handles
+- IP addresses
+- Password strings or masked fragments
+- Car plates / vehicle identifiers
+- Social account IDs
+- Composite search phrases
+- Domains, which trigger email enumeration and follow-on scanning
+
 ## Authentication
 
 DarkRecon uses an API key sent in the request header:
@@ -31,8 +47,23 @@ DarkRecon uses an API key sent in the request header:
 
 See `/darkrecon/authentication`.
 
-## Typical workflow
+## Request model
 
-1. Start a scan: `POST /scan` with `queries` (emails/phones) or `domain`
-2. Store and track the returned `scan_id`
-3. Retrieve full results: `GET /scan/{scan_id}`
+1. Submit `POST /scan` with either `keywords` or `domain`.
+2. Read the synchronous response for `scan_id`, `status`, `total_breaches`, and optional `discovered_emails`.
+3. Fetch the stored record with `GET /scan/{scan_id}`.
+4. Parse the `results` object, which is keyed by breach database name rather than normalized into a fixed schema.
+
+## Response model
+
+- `total_breaches` counts matched breach sources, not the total number of raw rows inside `Data`.
+- `results` is a dictionary keyed by breach database name.
+- Each breach entry contains `InfoLeak`, `NumOfResults`, and `Data`.
+- `Data` records are source-specific. Field names vary between breaches.
+- Password-like fields are masked in API output.
+
+## Related pages
+
+- `/darkrecon/quickstart`
+- `/darkrecon/api/start-scan`
+- `/darkrecon/api/get-scan-results`

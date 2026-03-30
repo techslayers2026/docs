@@ -2,8 +2,8 @@
   "openapi": "3.0.0",
   "info": {
     "title": "DarkRecon API",
-    "description": "API for scanning emails, phone numbers, and domains for breach data. Results are stored and retrievable via scan UUID.",
-    "version": "2.1.0"
+    "description": "API for scanning keywords or domains for breach data. Results are stored and retrievable via scan UUID.",
+    "version": "2.2.0"
   },
   "servers": [
     {
@@ -22,8 +22,8 @@
         "tags": [
           "Scan"
         ],
-        "summary": "Scan emails, phone numbers, or a domain for breach data",
-        "description": "Accepts either a list of emails/phone numbers OR a domain name. When a domain is provided, emails are enumerated from breach data for that domain and scanned automatically. Results are stored in the database and can be retrieved later via the scan UUID.",
+        "summary": "Scan keywords or a domain for breach data",
+        "description": "Accepts either a list of keywords (emails, phone numbers, usernames, IPs, passwords, car plates, social account IDs, or composite queries) OR a domain name. When a domain is provided, emails are enumerated from breach data for that domain and scanned automatically. Provide one or the other, not both. Results are stored and retrievable via the scan UUID. Passwords in returned records are masked.",
         "operationId": "scan",
         "requestBody": {
           "required": true,
@@ -33,27 +33,59 @@
                 "$ref": "#/components/schemas/ScanRequest"
               },
               "examples": {
-                "emails_only": {
-                  "summary": "Scan by emails",
+                "single_email": {
+                  "summary": "Scan by email",
                   "value": {
-                    "queries": [
+                    "keywords": [
+                      "user@example.com"
+                    ]
+                  }
+                },
+                "multiple_emails": {
+                  "summary": "Scan multiple emails",
+                  "value": {
+                    "keywords": [
                       "user@example.com",
                       "other@example.com"
                     ]
                   }
                 },
-                "domain_only": {
+                "phone": {
+                  "summary": "Scan by phone number",
+                  "value": {
+                    "keywords": [
+                      "+79002206090"
+                    ]
+                  }
+                },
+                "username": {
+                  "summary": "Scan by username",
+                  "value": {
+                    "keywords": [
+                      "ShadowPlayer228"
+                    ]
+                  }
+                },
+                "ip": {
+                  "summary": "Scan by IP address",
+                  "value": {
+                    "keywords": [
+                      "127.0.0.1"
+                    ]
+                  }
+                },
+                "composite": {
+                  "summary": "Composite query",
+                  "value": {
+                    "keywords": [
+                      "ShadowPlayer228 example@gmail.com"
+                    ]
+                  }
+                },
+                "domain": {
                   "summary": "Scan by domain",
                   "value": {
                     "domain": "example.com"
-                  }
-                },
-                "phone_only": {
-                  "summary": "Scan by phone number",
-                  "value": {
-                    "queries": [
-                      "+1234567890"
-                    ]
                   }
                 }
               }
@@ -71,6 +103,14 @@
                 "examples": {
                   "success": {
                     "summary": "Breaches found",
+                    "value": {
+                      "scan_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "status": "success",
+                      "total_breaches": 3
+                    }
+                  },
+                  "domain_success": {
+                    "summary": "Domain scan with discovered emails",
                     "value": {
                       "scan_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                       "status": "success",
@@ -99,6 +139,9 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "detail": "Could not validate API key"
                 }
               }
             }
@@ -112,6 +155,29 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                },
+                "example": {
+                  "detail": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "header",
+                        "x-api-key"
+                      ],
+                      "msg": "Field required",
+                      "input": null
+                    }
+                  ]
+                }
+              }
+            }
           }
         }
       }
@@ -122,7 +188,7 @@
           "Scan"
         ],
         "summary": "Get scan results by UUID",
-        "description": "Retrieve the full results of a previously completed scan, including breach data categorized by type (usernames, emails, passwords, IPs, etc.) and occurrence tracking per breach source.",
+        "description": "Retrieve the full stored results of a previous scan. The response includes top-level scan metadata and a `results` object keyed by breach database name. Each breach entry contains `InfoLeak`, `NumOfResults`, and a `Data` array of source-specific records. Passwords are masked in returned records.",
         "operationId": "getScan",
         "parameters": [
           {
@@ -147,34 +213,25 @@
                 },
                 "example": {
                   "scan_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-                  "queries": [
+                  "keywords": [
                     "user@example.com"
                   ],
                   "domain": null,
-                  "total_breaches": 12,
+                  "total_breaches": 3,
                   "status": "success",
-                  "created_at": "2026-02-26T10:30:00+00:00",
+                  "created_at": "2026-03-30T10:30:00+00:00",
                   "results": {
-                    "occurrences": {
-                      "emails_occurances": "BreachDB1, BreachDB2",
-                      "passwords_occurances": "BreachDB1"
-                    },
-                    "data": {
-                      "emails": [
-                        "user@example.com"
-                      ],
-                      "passwords": [
-                        "pa**rd"
-                      ],
-                      "usernames": [
-                        "johndoe"
+                    "AlpineReplay": {
+                      "InfoLeak": "Description of the breach...",
+                      "NumOfResults": 1,
+                      "Data": [
+                        {
+                          "Email": "user@example.com",
+                          "Password(bcrypt)": "$2****************************xC",
+                          "FirstName": "John",
+                          "LastName": "Doe"
+                        }
                       ]
-                    },
-                    "counts": {
-                      "total_breaches": 12,
-                      "usernames_count": 1,
-                      "emails_count": 1,
-                      "passwords_count": 1
                     }
                   }
                 }
@@ -187,6 +244,9 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "detail": "Could not validate API key"
                 }
               }
             }
@@ -197,6 +257,32 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "detail": "Scan not found"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                },
+                "example": {
+                  "detail": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "header",
+                        "x-api-key"
+                      ],
+                      "msg": "Field required",
+                      "input": null
+                    }
+                  ]
                 }
               }
             }
@@ -217,27 +303,28 @@
     "schemas": {
       "ScanRequest": {
         "type": "object",
+        "description": "Send exactly one of `keywords` or `domain`.",
         "properties": {
-          "queries": {
+          "keywords": {
             "type": "array",
             "items": {
               "type": "string"
             },
-            "description": "List of emails and/or phone numbers to scan for breaches. Provide this OR domain, not both.",
+            "description": "List of search terms — emails, phone numbers, usernames, IPs, passwords, car plates, social account IDs, or composite queries. Provide this OR domain, not both.",
             "example": [
-              "user@example.com",
-              "+1234567890"
+              "user@example.com"
             ]
           },
           "domain": {
             "type": "string",
-            "description": "Domain name to enumerate emails from and scan. Provide this OR queries, not both.",
+            "description": "Domain name to enumerate emails from and scan. Provide this OR keywords, not both.",
             "example": "example.com"
           }
         }
       },
       "ScanResponse": {
         "type": "object",
+        "description": "Initial acknowledgement returned by `POST /scan`. Use `scan_id` with `GET /scan/{scan_id}` to retrieve full records.",
         "properties": {
           "scan_id": {
             "type": "string",
@@ -255,7 +342,7 @@
           },
           "total_breaches": {
             "type": "integer",
-            "description": "Total number of breaches found",
+            "description": "Number of breach databases found",
             "minimum": 0
           },
           "discovered_emails": {
@@ -267,23 +354,24 @@
           },
           "message": {
             "type": "string",
-            "description": "Additional context (e.g. when no queries were provided)"
+            "description": "Additional context (e.g. when no keywords were provided)"
           }
         }
       },
       "ScanResult": {
         "type": "object",
+        "description": "Stored scan result returned by `GET /scan/{scan_id}`.",
         "properties": {
           "scan_id": {
             "type": "string",
             "format": "uuid"
           },
-          "queries": {
+          "keywords": {
             "type": "array",
             "items": {
               "type": "string"
             },
-            "description": "The queries that were scanned"
+            "description": "The keywords that were scanned"
           },
           "domain": {
             "type": "string",
@@ -292,7 +380,7 @@
           },
           "total_breaches": {
             "type": "integer",
-            "description": "Total number of breaches found"
+            "description": "Number of breach databases found"
           },
           "status": {
             "type": "string",
@@ -302,12 +390,12 @@
               "no_queries",
               "error"
             ],
-            "description": "Scan result status"
+            "description": "Final stored scan status"
           },
           "created_at": {
             "type": "string",
             "format": "date-time",
-            "description": "When the scan was performed"
+            "description": "When the stored scan record was created"
           },
           "discovered_emails": {
             "type": "array",
@@ -322,30 +410,27 @@
           },
           "results": {
             "type": "object",
-            "description": "Breach analysis results (only present for successful scans)",
-            "properties": {
-              "occurrences": {
-                "type": "object",
-                "description": "Comma-separated breach source names per data category",
-                "additionalProperties": {
-                  "type": "string"
-                }
-              },
-              "data": {
-                "type": "object",
-                "description": "Unique values found per category (usernames, emails, passwords, encrypted_passwords, fullnames, addresses, ips, telephones, vehicles, dateofbirths, geolocations)",
-                "additionalProperties": {
+            "description": "Raw breach data keyed by database name. Each entry contains InfoLeak (description), NumOfResults (count), and Data (array of breach records). Passwords are masked.",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "InfoLeak": {
+                  "type": "string",
+                  "description": "Description of the breach"
+                },
+                "NumOfResults": {
+                  "type": "integer",
+                  "description": "Number of records in this breach"
+                },
+                "Data": {
                   "type": "array",
+                  "description": "Breach records — fields vary per database (Email, Password, FirstName, LastName, BDay, AutoNumber, NickName, etc.)",
                   "items": {
-                    "type": "string"
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
                   }
-                }
-              },
-              "counts": {
-                "type": "object",
-                "description": "Count of unique values per category plus total_breaches",
-                "additionalProperties": {
-                  "type": "integer"
                 }
               }
             }
@@ -359,7 +444,60 @@
             "type": "string",
             "description": "Error message"
           }
-        }
+        },
+        "required": [
+          "detail"
+        ]
+      },
+      "HTTPValidationError": {
+        "type": "object",
+        "properties": {
+          "detail": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "description": "List of validation issues returned by the API framework."
+          }
+        },
+        "required": [
+          "detail"
+        ]
+      },
+      "ValidationError": {
+        "type": "object",
+        "properties": {
+          "loc": {
+            "type": "array",
+            "description": "Where the validation error occurred.",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            }
+          },
+          "msg": {
+            "type": "string",
+            "description": "Human-readable validation message."
+          },
+          "type": {
+            "type": "string",
+            "description": "Machine-readable validation error type."
+          },
+          "input": {
+            "description": "The offending input value when available."
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ]
       }
     }
   }

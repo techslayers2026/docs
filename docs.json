@@ -119,7 +119,9 @@
               "darkrecon/schemas/scan-request",
               "darkrecon/schemas/scan-response",
               "darkrecon/schemas/scan-result",
-              "darkrecon/schemas/error"
+              "darkrecon/schemas/error",
+              "darkrecon/schemas/http-validation-error",
+              "darkrecon/schemas/validation-error"
             ]
           }
         ]

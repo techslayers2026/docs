@@ -6,4 +6,14 @@ openapi-schema: "openapi/darkrecon.json ScanResponse"
 
 # ScanResponse
 
-Contains `scan_id`, status, breach count, and optional discovered emails/message fields.
+Contains the immediate acknowledgement returned by `POST /scan`.
+
+## Key fields
+
+- `scan_id`: store this UUID and use it with `GET /scan/{scan_id}`.
+- `status`: `success`, `no_results`, or `no_queries`.
+- `total_breaches`: number of matched breach sources, not raw rows.
+- `discovered_emails`: optional, only for domain-driven scans that enumerate breached addresses.
+- `message`: optional context when the request resolves without usable search terms.
+
+This response does not contain the raw breach records. Use the stored `scan_id` to fetch the full result payload.

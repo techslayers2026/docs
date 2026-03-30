@@ -1,0 +1,17 @@
+---
+title: HTTPValidationError
+description: Validation error envelope returned when DarkRecon rejects missing or malformed request input.
+openapi-schema: "openapi/darkrecon.json HTTPValidationError"
+---
+
+# HTTPValidationError
+
+Returned when request validation fails before the application-level handler runs.
+
+## Common cases
+
+- Missing `X-API-Key`
+- Invalid `scan_id` path input
+- Malformed JSON or unexpected request structure
+
+The `detail` array contains one or more `ValidationError` objects.
